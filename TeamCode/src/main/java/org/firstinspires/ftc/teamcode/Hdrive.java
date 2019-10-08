@@ -5,6 +5,7 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.util.Range;
+import com.qualcomm.robotcore.hardware.Servo;
 
 
 //This annotation tells the driverstation phone about the program.
@@ -24,6 +25,15 @@ public class Hdrive extends OpMode {
     private DcMotor cMech = null;
     private DcMotor dMech = null;
 
+    private Servo grabLeft = null;
+    private Servo grabRight = null;
+
+    private double grabStartPosL = 0;
+    private double grabStartPosR = 0;
+    private double grabPos = 0;
+
+
+
 
     /** Tuner shows up at the bottom of the driverstation phone that
      *  allows you to adjust values while running the program. This is
@@ -31,6 +41,7 @@ public class Hdrive extends OpMode {
      */
     private String[] titles = new String[] {"forwardCoeff", "turnCoeff", "strafeCoeff"}; //names of the tuner values
     private double[] values = new double[] {     0.7      ,    0.2     ,     0.9      }; //default tuner values
+
     private Tuner tuner;
 
 
@@ -59,6 +70,12 @@ public class Hdrive extends OpMode {
         cMech = hardwareMap.get(DcMotor.class, "2-2");
         dMech = hardwareMap.get(DcMotor.class, "2-3");
 
+        grabLeft = hardwareMap.get(Servo.class, "grabLeft");
+        grabRight = hardwareMap.get(Servo.class, "grabRight");
+
+        grabStartPosL = grabLeft.getPosition();
+        grabStartPosR = grabRight.getPosition();
+
         //initialize the tuner object. Telemetry is a parameter, meaning we send the tuner options
         //though telemetry.
         tuner = new Tuner(titles, values, gamepad1, telemetry);
@@ -70,6 +87,8 @@ public class Hdrive extends OpMode {
     @Override
     public void loop() {
 
+
+
         //get the constants from the tuner
         tuner.tune();
         double forwardCoeff = tuner.get("forwardCoeff");
@@ -78,8 +97,8 @@ public class Hdrive extends OpMode {
 
         //apply the constants to calculate values
         double forward = -gamepad1.left_stick_y * forwardCoeff; //joysticks usually returns negative for up
-        double strafe = gamepad1.left_stick_x * strafeCoeff;
-        double turn = gamepad1.right_stick_x * turnCoeff;
+        double strafe = -gamepad1.left_stick_x * strafeCoeff; //I think right is positive and left is negative
+        double turn = -gamepad1.right_stick_x * turnCoeff;
 
         //Range.clip() limits the power so that 1.1 is 1 and -1.1 is -1.
         //In this simple drivetrain algorithm, the turning is caused by subtracting or adding
@@ -89,6 +108,17 @@ public class Hdrive extends OpMode {
         strafeMotor.setPower(Range.clip(strafe,-1,1));
         rDriveMotor.setPower(Range.clip(forward + turn,-1,1));
 
+
+        //servos
+        if(gamepad1.x && grabPos > -1){
+            grabPos += 0.01;
+        }
+        if(gamepad1.y && grabPos < 1){
+            grabPos -= 0.01;
+        }
+
+        grabLeft.setPosition(grabStartPosL + grabPos);
+        grabRight.setPosition(grabStartPosR - grabPos);
 
         //various buttons that run the motors at ±90% speed for testing
         if(gamepad1.dpad_up){ extraMotor.setPower(0.9); }
@@ -116,9 +146,8 @@ public class Hdrive extends OpMode {
         telemetry.addData("strafe",turn);
         telemetry.addData("turn",turn);
 
-        telemetry.addData("left pos",lDriveMotor.getCurrentPosition()); //the encoder position readings
-        telemetry.addData("strafe position",strafeMotor.getCurrentPosition());
-        telemetry.addData("right pos",rDriveMotor.getCurrentPosition());
+        telemetry.addData("grabLeft pos",grabLeft.getPosition()); //the encoder position readings
+        telemetry.addData("grabRight pos",grabRight.getPosition());
         telemetry.update();
 
     }
