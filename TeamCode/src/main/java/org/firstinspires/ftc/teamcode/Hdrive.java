@@ -20,8 +20,8 @@ public class Hdrive extends OpMode {
     private DcMotor strafeMotor = null;
     private DcMotor extraMotor = null;
 
-    private DcMotor aMech = null;
-    private DcMotor bMech = null;
+    private DcMotor elevator = null;
+    private DcMotor arm = null;
     private DcMotor cMech = null;
     private DcMotor dMech = null;
 
@@ -32,6 +32,8 @@ public class Hdrive extends OpMode {
     private double grabStartPosR = 0;
     private double grabPos = 0;
 
+    private double armPosStart = 0;
+
 
 
 
@@ -39,11 +41,10 @@ public class Hdrive extends OpMode {
      *  allows you to adjust values while running the program. This is
      *  meant to be temporary in order to test out constants.
      */
-    private String[] titles = new String[] {"forwardCoeff", "turnCoeff", "strafeCoeff"}; //names of the tuner values
-    private double[] values = new double[] {     0.7      ,    0.2     ,     0.9      }; //default tuner values
+    private String[] titles = new String[] {"forwardCoeff", "turnCoeff", "strafeCoeff", "elevatorCoeff", "armCoeff", "antigrav"}; //names of the tuner values
+    private double[] values = new double[] {     0.7      ,    0.4     ,     0.9      ,       0.7      ,    0.3    ,      0.15  }; //default tuner values
 
     private Tuner tuner;
-
 
     //the init() function runs when you press the init button on the driverstation before starting.
     //Here, we put things that need to be run right before starting.
@@ -65,8 +66,8 @@ public class Hdrive extends OpMode {
 
         extraMotor = hardwareMap.get(DcMotor.class, "1-3");
 
-        aMech = hardwareMap.get(DcMotor.class, "2-0");
-        bMech = hardwareMap.get(DcMotor.class, "2-1");
+        elevator = hardwareMap.get(DcMotor.class, "2-0");
+        arm = hardwareMap.get(DcMotor.class, "2-1");
         cMech = hardwareMap.get(DcMotor.class, "2-2");
         dMech = hardwareMap.get(DcMotor.class, "2-3");
 
@@ -75,6 +76,8 @@ public class Hdrive extends OpMode {
 
         grabStartPosL = grabLeft.getPosition();
         grabStartPosR = grabRight.getPosition();
+
+        armPosStart = arm.getCurrentPosition();
 
         //initialize the tuner object. Telemetry is a parameter, meaning we send the tuner options
         //though telemetry.
@@ -87,13 +90,14 @@ public class Hdrive extends OpMode {
     @Override
     public void loop() {
 
-
-
         //get the constants from the tuner
         tuner.tune();
         double forwardCoeff = tuner.get("forwardCoeff");
         double strafeCoeff = tuner.get("strafeCoeff");
         double turnCoeff = tuner.get("turnCoeff");
+        double armCoeff = tuner.get("armCoeff");
+        double antigrav = tuner.get("antigrav");
+        double elevatorCoeff = tuner.get("elevatorCoeff");
 
         //apply the constants to calculate values
         double forward = -gamepad1.left_stick_y * forwardCoeff; //joysticks usually returns negative for up
@@ -109,29 +113,27 @@ public class Hdrive extends OpMode {
         rDriveMotor.setPower(Range.clip(forward + turn,-1,1));
 
 
+
         //servos
-        if(gamepad1.x && grabPos > -1){
-            grabPos += 0.01;
+        if(gamepad1.x && grabPos < 1){
+            grabPos += 0.05;
         }
-        if(gamepad1.y && grabPos < 1){
-            grabPos -= 0.01;
+        if(gamepad1.y && grabPos > -1){
+            grabPos -= 0.05;
         }
 
-        grabLeft.setPosition(grabStartPosL + grabPos);
-        grabRight.setPosition(grabStartPosR - grabPos);
+        grabLeft.setPosition(0.5 - grabPos);
+        grabRight.setPosition(0.5 + grabPos);
 
-        //various buttons that run the motors at ±90% speed for testing
         if(gamepad1.dpad_up){ extraMotor.setPower(0.9); }
         else if(gamepad2.dpad_down){ extraMotor.setPower(-0.9); }
         else{ extraMotor.setPower(0); }
 
-        if(gamepad2.dpad_up){ aMech.setPower(0.9); }
-        else if(gamepad2.dpad_down){ aMech.setPower(-0.9); }
-        else{ aMech.setPower(0); }
+        if(gamepad2.dpad_up){ elevator.setPower(elevatorCoeff); }
+        else if(gamepad2.dpad_down){ elevator.setPower(-elevatorCoeff); }
+        else{ elevator.setPower(0); }
 
-        if(gamepad2.dpad_right){ bMech.setPower(0.9); }
-        else if(gamepad2.dpad_left){ bMech.setPower(-0.9); }
-        else{ bMech.setPower(0); }
+        arm.setPower(armCoeff * -gamepad2.left_stick_y + antigrav * Math.cos(Math.toRadians((arm.getCurrentPosition()-armPosStart) * (90/400.0) - 90)));
 
         if(gamepad2.y){ cMech.setPower(0.9); }
         else if(gamepad2.a){ cMech.setPower(-0.9); }
@@ -142,9 +144,13 @@ public class Hdrive extends OpMode {
         else{ dMech.setPower(0); }
 
         //some debug info sent back
-        telemetry.addData("forward",forward); //the power values
-        telemetry.addData("strafe",turn);
-        telemetry.addData("turn",turn);
+        //telemetry.addData("forward",forward); //the power values
+        //telemetry.addData("strafe",turn);
+        //telemetry.addData("turn",turn);
+
+        telemetry.addData("arm pos",arm.getCurrentPosition()-armPosStart);
+        telemetry.addData("L pos",lDriveMotor.getCurrentPosition());
+        telemetry.addData("R pos",rDriveMotor.getCurrentPosition());
 
         telemetry.addData("grabLeft pos",grabLeft.getPosition()); //the encoder position readings
         telemetry.addData("grabRight pos",grabRight.getPosition());
