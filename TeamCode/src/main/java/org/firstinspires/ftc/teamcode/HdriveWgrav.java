@@ -70,6 +70,19 @@ public class HdriveWgrav extends OpMode {
     @Override
     public void loop() {
 
+        //75 is 90-c, c is 15 degrees for now.
+        double anglestrafe = strafeMotor.getCurrentPosition()-75;
+
+        //strafecoeff (for now) is power needed to hold up at 0 degrees; is mg.
+
+        if((anglestrafe)<0){
+            double antigrav = Math.sin(anglestafe)*strafeCoeff;
+
+        }
+        if((anglestrafe)>0){
+            double antigrav = Math.cos(anglestrafe)*strafeCoeff;
+        }
+
         //get the constants from the tuner
         tuner.tune();
         double forwardCoeff = tuner.get("forwardCoeff");
@@ -78,7 +91,7 @@ public class HdriveWgrav extends OpMode {
 
         //apply the constants to calculate values
         double forward = -gamepad1.left_stick_y * forwardCoeff; //joysticks usually returns negative for up
-        double strafe = gamepad1.left_stick_x * strafeCoeff;
+        double strafe = gamepad1.left_stick_x * strafeCoeff + antigrav;
         double turn = gamepad1.right_stick_x * turnCoeff;
 
         //Range.clip() limits the power so that 1.1 is 1 and -1.1 is -1.
@@ -121,18 +134,7 @@ public class HdriveWgrav extends OpMode {
         telemetry.addData("right pos",rDriveMotor.getCurrentPosition());
         telemetry.update();
 
-        //75 is 90-c, c is 15 degrees for now.
-        double anglestrafe = strafeMotor.getCurrentPosition()-75;
 
-        //strafecoeff (for now) is power needed to hold up at 0 degrees; is mg.
-
-        if((anglestrafe)<0){
-            double antigrav = Math.sin(anglestafe)*strafeCoeff;
-
-        }
-        if((anglestrafe)>0){
-            double antigrav = Math.cos(anglestrafe)*strafeCoeff;
-        }
 
     }
 
