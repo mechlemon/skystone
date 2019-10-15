@@ -76,7 +76,7 @@ public class HdriveWgrav extends OpMode {
         //strafecoeff (for now) is power needed to hold up at 0 degrees; is mg.
 
         if((anglestrafe)<0){
-            double antigrav = Math.sin(anglestafe)*strafeCoeff;.
+            double antigrav = Math.sin(anglestafe)*strafeCoeff;
 
         }
         if((anglestrafe)>0){
