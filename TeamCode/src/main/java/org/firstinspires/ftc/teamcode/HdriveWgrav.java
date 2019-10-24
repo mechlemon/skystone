@@ -5,7 +5,6 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.util.Range;
-import java.Math.*;
 
 //This annotation tells the driverstation phone about the program.
 @TeleOp(name = "HdriveWgrav", group = "Joystick Opmode")
@@ -70,24 +69,28 @@ public class HdriveWgrav extends OpMode {
     @Override
     public void loop() {
 
+        //get the constants from the tuner
+        tuner.tune();
+        double forwardCoeff = tuner.get("forwardCoeff");
+        double strafeCoeff = tuner.get("strafeCoeff");
+        double turnCoeff = tuner.get("turnCoeff");
+
+        double antigrav = 0;
+
         //75 is 90-c, c is 15 degrees for now.
         double anglestrafe = strafeMotor.getCurrentPosition()-75;
 
         //strafecoeff (for now) is power needed to hold up at 0 degrees; is mg.
 
         if((anglestrafe)<0){
-            double antigrav = Math.sin(anglestafe)*strafeCoeff;
+            antigrav = Math.sin(anglestrafe)*strafeCoeff;
 
         }
         if((anglestrafe)>0){
-            double antigrav = Math.cos(anglestrafe)*strafeCoeff;
+            antigrav = Math.cos(anglestrafe)*strafeCoeff;
         }
 
-        //get the constants from the tuner
-        tuner.tune();
-        double forwardCoeff = tuner.get("forwardCoeff");
-        double strafeCoeff = tuner.get("strafeCoeff");
-        double turnCoeff = tuner.get("turnCoeff");
+
 
         //apply the constants to calculate values
         double forward = -gamepad1.left_stick_y * forwardCoeff; //joysticks usually returns negative for up

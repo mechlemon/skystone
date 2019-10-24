@@ -41,8 +41,8 @@ public class Hdrive extends OpMode {
      *  allows you to adjust values while running the program. This is
      *  meant to be temporary in order to test out constants.
      */
-    private String[] titles = new String[] {"forwardCoeff", "turnCoeff", "strafeCoeff", "elevatorCoeff", "armCoeff", "antigrav"}; //names of the tuner values
-    private double[] values = new double[] {     0.7      ,    0.4     ,     0.9      ,       0.7      ,    0.3    ,      0.15  }; //default tuner values
+    private String[] titles = new String[] {"forwardCoeff", "turnCoeff", "strafeCoeff", "elevatorCoeff", "armCoeff", "antigrav" , "left_servo" , "right_servo"}; //names of the tuner values
+    private double[] values = new double[] {     1        ,    0.7     ,     0.9      ,         1      ,    0.3    ,     0.15   ,      0.5     ,       0.25    }; //default tuner values
 
     private Tuner tuner;
 
@@ -98,6 +98,8 @@ public class Hdrive extends OpMode {
         double armCoeff = tuner.get("armCoeff");
         double antigrav = tuner.get("antigrav");
         double elevatorCoeff = tuner.get("elevatorCoeff");
+        double left_servo_start = tuner.get("left_servo");
+        double right_servo_start = tuner.get("right_servo");
 
         //apply the constants to calculate values
         double forward = -gamepad1.left_stick_y * forwardCoeff; //joysticks usually returns negative for up
@@ -113,42 +115,26 @@ public class Hdrive extends OpMode {
         rDriveMotor.setPower(Range.clip(forward + turn,-1,1));
 
 
-
         //servos
-        if(gamepad1.x && grabPos < 1){
+        if(gamepad2.x && grabPos < 1){
             grabPos += 0.05;
         }
-        if(gamepad1.y && grabPos > -1){
+        if(gamepad2.y && grabPos > -1){
             grabPos -= 0.05;
         }
 
-        grabLeft.setPosition(0.5 - grabPos);
-        grabRight.setPosition(0.5 + grabPos);
-
-        if(gamepad1.dpad_up){ extraMotor.setPower(0.9); }
-        else if(gamepad2.dpad_down){ extraMotor.setPower(-0.9); }
-        else{ extraMotor.setPower(0); }
+        grabLeft.setPosition(left_servo_start - grabPos);
+        grabRight.setPosition(right_servo_start + grabPos);
 
         if(gamepad2.dpad_up){ elevator.setPower(elevatorCoeff); }
         else if(gamepad2.dpad_down){ elevator.setPower(-elevatorCoeff); }
         else{ elevator.setPower(0); }
 
-        arm.setPower(armCoeff * -gamepad2.left_stick_y + antigrav * Math.cos(Math.toRadians((arm.getCurrentPosition()-armPosStart) * (90/400.0) - 90)));
+        double armPos = (arm.getCurrentPosition() - armPosStart) * (16/24.0) * (360/1440.0) - 80;
+        arm.setPower(armCoeff * -gamepad2.left_stick_y + antigrav * Math.cos(Math.toRadians(armPos)));
 
-        if(gamepad2.y){ cMech.setPower(0.9); }
-        else if(gamepad2.a){ cMech.setPower(-0.9); }
-        else{ cMech.setPower(0); }
 
-        if(gamepad2.b){ dMech.setPower(0.9); }
-        else if(gamepad2.x){ dMech.setPower(-0.9); }
-        else{ dMech.setPower(0); }
-
-        //some debug info sent back
-        //telemetry.addData("forward",forward); //the power values
-        //telemetry.addData("strafe",turn);
-        //telemetry.addData("turn",turn);
-
-        telemetry.addData("arm pos",arm.getCurrentPosition()-armPosStart);
+        telemetry.addData("arm pos",armPos);
         telemetry.addData("L pos",lDriveMotor.getCurrentPosition());
         telemetry.addData("R pos",rDriveMotor.getCurrentPosition());
 
