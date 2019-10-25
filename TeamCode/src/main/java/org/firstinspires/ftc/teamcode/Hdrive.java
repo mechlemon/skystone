@@ -1,149 +1,173 @@
 package org.firstinspires.ftc.teamcode;
 
-import com.qualcomm.robotcore.eventloop.opmode.OpMode;
-import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+
 import com.qualcomm.robotcore.hardware.DcMotor;
-import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.util.Range;
-import com.qualcomm.robotcore.hardware.Servo;
 
 
-//This annotation tells the driverstation phone about the program.
-@TeleOp(name = "Hdrive", group = "Joystick Opmode")
+//HELPER CLASS-creates an Hdrivetrain
 
-//we extend OpMode which is like a library that gives us functions to interact with the FTC hardware.
-public class Hdrive extends OpMode {
+public class Hdrive {
+    private DcMotor leftMotor;
+    private DcMotor rightMotor;
+    private DcMotor strafeMotor1;
+    private DcMotor strafeMotor2;
 
-    //create motor instances, but don't initialize them.
-    private DcMotor lDriveMotor = null;
-    private DcMotor rDriveMotor = null;
-    private DcMotor strafeMotor = null;
-    private DcMotor extraMotor = null;
-
-    private DcMotor elevator = null;
-    private DcMotor arm = null;
-    private DcMotor cMech = null;
-    private DcMotor dMech = null;
-
-    private Servo grabLeft = null;
-    private Servo grabRight = null;
-
-    private double grabStartPosL = 0;
-    private double grabStartPosR = 0;
-    private double grabPos = 0;
-
-    private double armPosStart = 0;
+    private double leftPower = 0;
+    private double rightPower = 0;
+    private double strafePower = 0;
 
 
-
-
-    /** Tuner shows up at the bottom of the driverstation phone that
-     *  allows you to adjust values while running the program. This is
-     *  meant to be temporary in order to test out constants.
-     */
-    private String[] titles = new String[] {"forwardCoeff", "turnCoeff", "strafeCoeff", "elevatorCoeff", "armCoeff", "antigrav" , "left_servo" , "right_servo"}; //names of the tuner values
-    private double[] values = new double[] {     1        ,    0.7     ,     0.9      ,         1      ,    0.3    ,     0.15   ,      0.5     ,       0.25    }; //default tuner values
-
-    private Tuner tuner;
-
-    //the init() function runs when you press the init button on the driverstation before starting.
-    //Here, we put things that need to be run right before starting.
-    @Override
-    public void init() {
-        //telemetry is like System.out.println() but since this code is run on the robot controller phone,
-        //the messages need to be transmitted over to the driver station phone to be displayed. These
-        //messages show up on the bottom of the driver station phone.
-        telemetry.addData("Status", "Initializing");
-
-        //initialize the motors here and map them to the ports as configured by the robot controller phone.
-        //the device name format is <hub number> - <motor port>
-        lDriveMotor = hardwareMap.get(DcMotor.class, "1-0");
-        lDriveMotor.setDirection(DcMotorSimple.Direction.REVERSE); //may need to flipped based on motor configuration
-        rDriveMotor = hardwareMap.get(DcMotor.class, "1-1");
-        rDriveMotor.setDirection(DcMotorSimple.Direction.FORWARD);
-        strafeMotor = hardwareMap.get(DcMotor.class, "1-2");
-        strafeMotor.setDirection(DcMotorSimple.Direction.REVERSE);
-
-        extraMotor = hardwareMap.get(DcMotor.class, "1-3");
-
-        elevator = hardwareMap.get(DcMotor.class, "2-0");
-        arm = hardwareMap.get(DcMotor.class, "2-1");
-        cMech = hardwareMap.get(DcMotor.class, "2-2");
-        dMech = hardwareMap.get(DcMotor.class, "2-3");
-
-        grabLeft = hardwareMap.get(Servo.class, "grabLeft");
-        grabRight = hardwareMap.get(Servo.class, "grabRight");
-
-        grabStartPosL = grabLeft.getPosition();
-        grabStartPosR = grabRight.getPosition();
-
-        armPosStart = arm.getCurrentPosition();
-
-        //initialize the tuner object. Telemetry is a parameter, meaning we send the tuner options
-        //though telemetry.
-        tuner = new Tuner(titles, values, gamepad1, telemetry);
-
-        telemetry.addData("Status", "Initialized");
-        telemetry.update(); //needs to be run every time you send something
+    public Hdrive(DcMotor leftMotor, DcMotor rightMotor, DcMotor strafeMotor1, DcMotor strafeMotor2) {
+        this.leftMotor = leftMotor;
+        this.rightMotor = rightMotor;
+        this.strafeMotor1 = strafeMotor1;
+        this.strafeMotor2 = strafeMotor2;
     }
 
-    @Override
-    public void loop() {
 
-        //get the constants from the tuner
-        tuner.tune();
-        double forwardCoeff = tuner.get("forwardCoeff");
-        double strafeCoeff = tuner.get("strafeCoeff");
-        double turnCoeff = tuner.get("turnCoeff");
-        double armCoeff = tuner.get("armCoeff");
-        double antigrav = tuner.get("antigrav");
-        double elevatorCoeff = tuner.get("elevatorCoeff");
-        double left_servo_start = tuner.get("left_servo");
-        double right_servo_start = tuner.get("right_servo");
-
-        //apply the constants to calculate values
-        double forward = -gamepad1.left_stick_y * forwardCoeff; //joysticks usually returns negative for up
-        double strafe = -gamepad1.left_stick_x * strafeCoeff; //I think right is positive and left is negative
-        double turn = -gamepad1.right_stick_x * turnCoeff;
-
-        //Range.clip() limits the power so that 1.1 is 1 and -1.1 is -1.
-        //In this simple drivetrain algorithm, the turning is caused by subtracting or adding
-        //the turn from the forward value. This is probably the simplest way to make it work but
-        //is usually not very smooth. We could try a constant radius turn later.
-        lDriveMotor.setPower(Range.clip(forward - turn,-1,1));
-        strafeMotor.setPower(Range.clip(strafe,-1,1));
-        rDriveMotor.setPower(Range.clip(forward + turn,-1,1));
-
-
-        //servos
-        if(gamepad2.x && grabPos < 1){
-            grabPos += 0.05;
-        }
-        if(gamepad2.y && grabPos > -1){
-            grabPos -= 0.05;
-        }
-
-        grabLeft.setPosition(left_servo_start - grabPos);
-        grabRight.setPosition(right_servo_start + grabPos);
-
-        if(gamepad2.dpad_up){ elevator.setPower(elevatorCoeff); }
-        else if(gamepad2.dpad_down){ elevator.setPower(-elevatorCoeff); }
-        else{ elevator.setPower(0); }
-
-        double armPos = (arm.getCurrentPosition() - armPosStart) * (16/24.0) * (360/1440.0) - 80;
-        arm.setPower(armCoeff * -gamepad2.left_stick_y + antigrav * Math.cos(Math.toRadians(armPos)));
-
-
-        telemetry.addData("arm pos",armPos);
-        telemetry.addData("L pos",lDriveMotor.getCurrentPosition());
-        telemetry.addData("R pos",rDriveMotor.getCurrentPosition());
-
-        telemetry.addData("grabLeft pos",grabLeft.getPosition()); //the encoder position readings
-        telemetry.addData("grabRight pos",grabRight.getPosition());
-        telemetry.update();
-
+    //call this every loop to make sure the power sent to the motors is updated
+    //also does a last clip to make sure power never exceeds 1
+    public void execute(){
+        leftMotor.setPower(Range.clip(leftPower,-1,1));
+        rightMotor.setPower(Range.clip(rightPower,-1,1));
+        strafeMotor1.setPower(Range.clip(strafePower,-1,1));
+        strafeMotor2.setPower(Range.clip(strafePower,-1,1));
     }
 
 
 
-}
+
+    //THE GETTERS ##################################################
+
+
+    public double[] getPowers(){ return new double[] {leftPower, rightPower, strafePower}; }
+    public double getleftPower(){ return leftPower; }
+    public double getrightPower(){ return rightPower; }
+    public double getstrafePower(){ return strafePower; }
+
+
+
+
+    //THE SETTERS ##################################################
+
+    public void XYtoPowers(double x, double y, double spin){
+        leftPower = y - spin;
+        rightPower = y + spin;
+        strafePower = x;
+    }
+
+
+    //move the robot in an angle relative to the field
+    public void moveGlobalAngle(double desiredAngle, double robotHeading, double power, double spin) {
+        double[] cartesianCoords = Calculate.polarToCartesian(power, desiredAngle, false);
+        double[] globalVector = Calculate.FOD(cartesianCoords[0], cartesianCoords[1], -robotHeading, false, true);
+        double x = globalVector[0];
+        double y = globalVector[1];
+        XYtoPowers(x, y, spin);
+    }
+
+
+    //move the robot in an angle relative to the robot's heading
+    public void moveLocalAngle(double angle, double power, double spin) {
+        double x = Math.cos(Math.toRadians(angle)) * power;
+        double y = Math.sin(Math.toRadians(angle)) * power;
+        XYtoPowers(x, y, spin);
+    }
+
+
+    public void moveGlobalVector(double xComp, double yComp, double heading, double spin) {
+        double[] globalVector = Calculate.FOD(xComp, yComp, heading, true, true);
+        double x = globalVector[0];
+        double y = globalVector[1];
+        XYtoPowers(x, y, spin);
+    }
+
+
+    //zeros them out (stops drivetrain if execute() is run)
+    public void clear() {
+        leftMotor.setPower(0);
+        rightMotor.setPower(0);
+        strafeMotor1.setPower(0);
+        strafeMotor2.setPower(0);
+        execute();
+    }
+
+
+    //stops and closes motors entirely
+    public void stop() {
+        leftMotor.setPower(0);
+        rightMotor.setPower(0);
+        strafeMotor1.setPower(0);
+        strafeMotor2.setPower(0);
+        execute();
+        leftMotor.close();
+        rightMotor.close();
+        strafeMotor1.close();
+        strafeMotor2.close();
+    }
+
+
+
+
+    public void setPowers(double leftPower, double rightPower, double strafePower) {
+        this.leftPower = leftPower;
+        this.rightPower = rightPower;
+        this.strafePower = strafePower;
+    }
+    public void setleftPower(double power){ leftPower = power; }
+    public void setrightPower(double power){ rightPower = power; }
+    public void setstrafePower(double power){ strafePower = power; }
+
+
+    //premade directions
+    public void forward(double magnitude) {
+        leftPower = magnitude;
+        rightPower = magnitude;
+        strafePower = 0;
+    }
+    public void back(double magnitude) {
+        leftPower = -magnitude;
+        rightPower = -magnitude;
+        strafePower = 0;
+    }
+    public void left(double magnitude) {
+        leftPower = 0;
+        rightPower = 0;
+        strafePower = magnitude;
+    }
+    public void right(double magnitude) {
+        leftPower = 0;
+        rightPower = 0;
+        strafePower = -magnitude;
+    }
+
+
+
+
+
+
+
+    //THE ADDERS ##################################################
+    //MAKE SURE NOT TO RUN MULTIPLE TIMES OR IN A LOOP
+    public void addPowers(double leftPower, double rightPower, double strafePower, double dPower) {
+        this.leftPower = this.leftPower + (leftPower);
+        this.rightPower = this.rightPower + (rightPower);
+        this.strafePower = this.strafePower + (strafePower);
+    }
+    public void addleftPower(double add){ leftPower = leftPower + add; }
+    public void addrightPower(double add){ rightPower = rightPower + add; }
+    public void addstrafePower(double add){ strafePower = strafePower + add; }
+
+
+
+
+
+
+
+
+
+
+
+
+}//end of class
