@@ -8,10 +8,10 @@ import com.qualcomm.robotcore.util.Range;
 //HELPER CLASS-creates an Hdrivetrain
 
 public class Hdrive {
-    private DcMotor leftMotor;
-    private DcMotor rightMotor;
-    private DcMotor strafeMotor1;
-    private DcMotor strafeMotor2;
+    public DcMotor leftMotor;
+    public DcMotor rightMotor;
+    public DcMotor strafeMotor1;
+    public DcMotor strafeMotor2;
 
     private double leftPower = 0;
     private double rightPower = 0;

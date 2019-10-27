@@ -9,7 +9,7 @@ import com.qualcomm.robotcore.hardware.Servo;
 
 
 //This annotation tells the driverstation phone about the program.
-@TeleOp(name = "Hdrive", group = "Joystick Opmode")
+@TeleOp(name = "Teleop1", group = "comp")
 
 //we extend OpMode which is like a library that gives us functions to interact with the FTC hardware.
 public class Teleop1 extends OpMode {

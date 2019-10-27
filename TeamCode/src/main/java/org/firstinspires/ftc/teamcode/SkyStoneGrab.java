@@ -29,6 +29,7 @@
 
 package org.firstinspires.ftc.teamcode;
 
+import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
@@ -56,14 +57,11 @@ import static org.firstinspires.ftc.robotcore.external.navigation.VuforiaLocaliz
 
 
 
-@TeleOp(name="SKYSTONE Vuforia Nav", group ="Concept")
+@Autonomous(name="SkyStoneGrabRed", group ="comp")
 
 public class SkyStoneGrab extends LinearOpMode {
 
-    private DcMotor lDriveMotor = null;
-    private DcMotor rDriveMotor = null;
-    private DcMotor strafeMotor = null;
-    private DcMotor extraMotor = null;
+    private Hdrive drivetrain;
 
     private DcMotor elevator = null;
     private DcMotor arm = null;
@@ -73,9 +71,8 @@ public class SkyStoneGrab extends LinearOpMode {
     private Servo grabLeft = null;
     private Servo grabRight = null;
 
-    private double grabStartPosL = 0;
-    private double grabStartPosR = 0;
-    private double grabPos = 0;
+    private double left_servo_start = 0.5;
+    private double right_servo_start = 0.25;
 
     private double armPosStart = 0;
 
@@ -105,21 +102,17 @@ public class SkyStoneGrab extends LinearOpMode {
 
 
     public void initialize() {
-        //telemetry is like System.out.println() but since this code is run on the robot controller phone,
-        //the messages need to be transmitted over to the driver station phone to be displayed. These
-        //messages show up on the bottom of the driver station phone.
         telemetry.addData("Status", "Initializing");
 
-        //initialize the motors here and map them to the ports as configured by the robot controller phone.
-        //the device name format is <hub number> - <motor port>
-        lDriveMotor = hardwareMap.get(DcMotor.class, "1-0");
-        lDriveMotor.setDirection(DcMotorSimple.Direction.REVERSE); //may need to flipped based on motor configuration
-        rDriveMotor = hardwareMap.get(DcMotor.class, "1-1");
-        rDriveMotor.setDirection(DcMotorSimple.Direction.FORWARD);
-        strafeMotor = hardwareMap.get(DcMotor.class, "1-2");
-        strafeMotor.setDirection(DcMotorSimple.Direction.REVERSE);
+        drivetrain = new Hdrive(hardwareMap.get(DcMotor.class, "1-0"),
+                                hardwareMap.get(DcMotor.class, "1-1"),
+                                hardwareMap.get(DcMotor.class, "1-2"),
+                                hardwareMap.get(DcMotor.class, "1-3"));
+        drivetrain.leftMotor.setDirection(DcMotorSimple.Direction.REVERSE);
+        drivetrain.strafeMotor1.setDirection(DcMotorSimple.Direction.REVERSE);
+        drivetrain.strafeMotor2.setDirection(DcMotorSimple.Direction.REVERSE);
+        drivetrain.clear(); //makes sure motors don't run before hitting start!
 
-        extraMotor = hardwareMap.get(DcMotor.class, "1-3");
 
         elevator = hardwareMap.get(DcMotor.class, "2-0");
         arm = hardwareMap.get(DcMotor.class, "2-1");
@@ -129,8 +122,8 @@ public class SkyStoneGrab extends LinearOpMode {
         grabLeft = hardwareMap.get(Servo.class, "grabLeft");
         grabRight = hardwareMap.get(Servo.class, "grabRight");
 
-        grabStartPosL = grabLeft.getPosition();
-        grabStartPosR = grabRight.getPosition();
+        left_servo_start = grabLeft.getPosition();
+        right_servo_start = grabRight.getPosition();
 
         armPosStart = arm.getCurrentPosition();
 
@@ -218,9 +211,11 @@ public class SkyStoneGrab extends LinearOpMode {
 
         initialize();
         waitForStart();
-
+        drivetrain.setstrafePower(0.1);
         targetsSkyStone.activate();
-        while (!isStopRequested()) {
+
+        Boolean skystoneAligned = false;
+        while (!skystoneAligned) {
 
             // check all the trackable targets to see which one (if any) is visible.
             targetVisible = false;
@@ -252,27 +247,45 @@ public class SkyStoneGrab extends LinearOpMode {
 
 
                 //horizontal translation is y axis: translation.get(1)
-                if(translation.get(1) > 0){
+                if(translation.get(1) > 0.5){
                     //if the target is to the right of the robot
-                    strafeMotor.setPower(translation.get(1)*0.25);
+                    drivetrain.setstrafePower(-translation.get(1)*0.25);
 
 
-                    telemetry.addData("Moving", "left");
-                }else{
+                    telemetry.addData("h_dist", "translation.get(1)");
+                }else if(translation.get(1) < -0.5){
                     //if the target is to the left of the robot
-                    strafeMotor.setPower(translation.get(1)*0.25);
-                    telemetry.addData("Moving", "right");
-
+                    drivetrain.setstrafePower(translation.get(1)*0.25);
+                    telemetry.addData("h_dist", "translation.get(1)");
+                }else{
+                    skystoneAligned = true;
                 }
             }
             else {
                 telemetry.addData("Visible Target", "none");
-                strafeMotor.setPower(0);
+                drivetrain.setstrafePower(0);
             }
             telemetry.update();
         }
+        drivetrain.clear();
+        while(drivetrain.leftMotor.getCurrentPosition() < 100){
+            drivetrain.forward(0.5);
+        }
+        drivetrain.clear();
+        clamp(0.8);
+        arm.setTargetPosition(arm.getCurrentPosition() + 100);
 
-        // Disable Tracking when we are done;
-        targetsSkyStone.deactivate();
+
+
+        if(isStopRequested()){
+            // Disable Tracking when we are done;
+            targetsSkyStone.deactivate();
+        }
+
+    }
+
+    private void clamp(double clampPosition){
+        grabLeft.setPosition(left_servo_start - clampPosition);
+        grabRight.setPosition(right_servo_start + clampPosition);
     }
 }
