@@ -43,7 +43,7 @@ public class Teleop1 extends OpMode {
      *  meant to be temporary in order to test out constants.
      */
     private String[] titles = new String[] {"forwardCoeff", "turnCoeff", "strafeCoeff", "elevatorCoeff", "armCoeff", "antigrav" , "left_servo" , "right_servo"}; //names of the tuner values
-    private double[] values = new double[] {     1        ,    0.7     ,     0.9      ,         1      ,    0.3    ,     0.15   ,      0.5     ,       0.25    }; //default tuner values
+    private double[] values = new double[] {     1        ,    0.7     ,     1      ,         1      ,    0.3    ,     0.15   ,      0.5     ,       0.25    }; //default tuner values
 
     private Tuner tuner;
 
@@ -63,9 +63,9 @@ public class Teleop1 extends OpMode {
         rDriveMotor = hardwareMap.get(DcMotor.class, "1-1");
         rDriveMotor.setDirection(DcMotorSimple.Direction.FORWARD);
         strafeMotor1 = hardwareMap.get(DcMotor.class, "1-2");
-        strafeMotor1.setDirection(DcMotorSimple.Direction.REVERSE);
+        strafeMotor1.setDirection(DcMotorSimple.Direction.FORWARD);
         strafeMotor2 = hardwareMap.get(DcMotor.class, "1-3");
-        strafeMotor2.setDirection(DcMotorSimple.Direction.REVERSE);
+        strafeMotor2.setDirection(DcMotorSimple.Direction.FORWARD);
 
         extraMotor = hardwareMap.get(DcMotor.class, "1-3");
 

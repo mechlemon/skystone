@@ -109,8 +109,6 @@ public class SkyStoneGrab extends LinearOpMode {
                                 hardwareMap.get(DcMotor.class, "1-2"),
                                 hardwareMap.get(DcMotor.class, "1-3"));
         drivetrain.leftMotor.setDirection(DcMotorSimple.Direction.REVERSE);
-        drivetrain.strafeMotor1.setDirection(DcMotorSimple.Direction.REVERSE);
-        drivetrain.strafeMotor2.setDirection(DcMotorSimple.Direction.REVERSE);
         drivetrain.clear(); //makes sure motors don't run before hitting start!
 
 
@@ -211,11 +209,33 @@ public class SkyStoneGrab extends LinearOpMode {
 
         initialize();
         waitForStart();
-        drivetrain.setstrafePower(0.1);
+
+        while(drivetrain.leftMotor.getCurrentPosition() < 1000){
+            drivetrain.leftMotor.setPower(0.4);
+            drivetrain.rightMotor.setPower(0.4);
+            telemetry.addData("leftpos", drivetrain.leftMotor.getCurrentPosition());
+            telemetry.update();
+            if(isStopRequested()){
+                break;
+            }
+        }
+
+        drivetrain.leftMotor.setPower(0);
+        drivetrain.rightMotor.setPower(0);
+        drivetrain.execute();
+
         targetsSkyStone.activate();
 
         Boolean skystoneAligned = false;
         while (!skystoneAligned) {
+            if(isStopRequested()){
+                break;
+            }
+            drivetrain.leftMotor.setPower(0);
+            drivetrain.rightMotor.setPower(0);
+            drivetrain.execute();
+            drivetrain.strafeMotor1.setPower(-0.4);
+            drivetrain.strafeMotor2.setPower(-0.4);
 
             // check all the trackable targets to see which one (if any) is visible.
             targetVisible = false;
@@ -249,31 +269,41 @@ public class SkyStoneGrab extends LinearOpMode {
                 //horizontal translation is y axis: translation.get(1)
                 if(translation.get(1) > 0.5){
                     //if the target is to the right of the robot
-                    drivetrain.setstrafePower(-translation.get(1)*0.25);
-
-
-                    telemetry.addData("h_dist", "translation.get(1)");
+                    drivetrain.setstrafePower(-translation.get(1)*0.1);
+                    telemetry.addData("h_dist", translation.get(1));
                 }else if(translation.get(1) < -0.5){
                     //if the target is to the left of the robot
-                    drivetrain.setstrafePower(translation.get(1)*0.25);
-                    telemetry.addData("h_dist", "translation.get(1)");
+                    drivetrain.setstrafePower(translation.get(1)*0.1);
+                    telemetry.addData("h_dist", translation.get(1));
                 }else{
                     skystoneAligned = true;
+                    drivetrain.clear();
                 }
             }
             else {
                 telemetry.addData("Visible Target", "none");
-                drivetrain.setstrafePower(0);
             }
             telemetry.update();
+            drivetrain.execute();
         }
         drivetrain.clear();
         while(drivetrain.leftMotor.getCurrentPosition() < 100){
             drivetrain.forward(0.5);
+            drivetrain.execute();
+            if(isStopRequested()){
+                break;
+            }
         }
         drivetrain.clear();
-        clamp(0.8);
-        arm.setTargetPosition(arm.getCurrentPosition() + 100);
+        clamp(1);
+
+        while(arm.getCurrentPosition() - armPosStart < 100){
+            arm.setPower(0.4);
+            if(isStopRequested()){
+                break;
+            }
+        }
+        arm.setPower(0);
 
 
 
