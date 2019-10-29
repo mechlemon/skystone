@@ -29,10 +29,7 @@
 
 package org.firstinspires.ftc.teamcode;
 
-import android.graphics.Camera;
-
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
-import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
@@ -59,10 +56,9 @@ import static org.firstinspires.ftc.robotcore.external.navigation.AxesReference.
 import static org.firstinspires.ftc.robotcore.external.navigation.VuforiaLocalizer.CameraDirection.BACK;
 
 
+@TeleOp(name="skystonedetect", group ="concept")
 
-@Autonomous(name="SkyStoneGrabRed", group ="comp")
-
-public class SkyStoneGrab extends LinearOpMode {
+public class SkyStoneDetect extends LinearOpMode {
 
     private Hdrive drivetrain;
 
@@ -215,32 +211,14 @@ public class SkyStoneGrab extends LinearOpMode {
         initialize();
         waitForStart();
 
-        while(drivetrain.leftMotor.getCurrentPosition() < 1100){
-            drivetrain.leftMotor.setPower(0.4);
-            drivetrain.rightMotor.setPower(0.4);
-            telemetry.addData("leftpos", drivetrain.leftMotor.getCurrentPosition());
-            telemetry.update();
-            if(isStopRequested()){
-                break;
-            }
-        }
-
-        drivetrain.leftMotor.setPower(0);
-        drivetrain.rightMotor.setPower(0);
-        drivetrain.execute();
 
         targetsSkyStone.activate();
 
         Boolean skystoneAligned = false;
-        while (!skystoneAligned) {
+        while (true) {
             if(isStopRequested()){
                 break;
             }
-            drivetrain.leftMotor.setPower(0);
-            drivetrain.rightMotor.setPower(0);
-            drivetrain.execute();
-            drivetrain.strafeMotor1.setPower(-0.35);
-            drivetrain.strafeMotor2.setPower(-0.35);
 
             // check all the trackable targets to see which one (if any) is visible.
             targetVisible = false;
@@ -272,11 +250,11 @@ public class SkyStoneGrab extends LinearOpMode {
 
 
                 //horizontal translation is y axis: translation.get(1)
-                if(translation.get(1) > 10){
+                if(translation.get(1) > 0.5){
                     //if the target is to the right of the robot
                     drivetrain.setstrafePower(-translation.get(1)*0.1);
                     telemetry.addData("h_dist", translation.get(1));
-                }else if(translation.get(1) < -10){
+                }else if(translation.get(1) < -0.5){
                     //if the target is to the left of the robot
                     drivetrain.setstrafePower(translation.get(1)*0.1);
                     telemetry.addData("h_dist", translation.get(1));
@@ -292,24 +270,9 @@ public class SkyStoneGrab extends LinearOpMode {
             drivetrain.execute();
         }
         drivetrain.clear();
-        while(drivetrain.leftMotor.getCurrentPosition() < 2000){
-            drivetrain.strafeMotor1.setPower(0);
-            drivetrain.strafeMotor2.setPower(0);
-            drivetrain.forward(0.5);
-            drivetrain.execute();
-            if(isStopRequested()){
-                break;
-            }
-        }
-        drivetrain.clear();
+
         clamp(1);
 
-        while(arm.getCurrentPosition() - armPosStart < 100){
-            arm.setPower(0.4);
-            if(isStopRequested()){
-                break;
-            }
-        }
         arm.setPower(0);
 
 
