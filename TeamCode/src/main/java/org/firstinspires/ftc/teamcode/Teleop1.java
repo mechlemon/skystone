@@ -28,9 +28,11 @@ public class Teleop1 extends OpMode {
 
     private Servo grabLeft = null;
     private Servo grabRight = null;
+    private Servo grabFoundationLeft = null;
+    private Servo grabFoundationRight = null;
 
-    private double grabStartPosL = 0;
-    private double grabStartPosR = 0;
+    private double grabStartPosL = -0.5;
+    private double grabStartPosR = -0.5;
     private double grabPos = 0;
 
     private double armPosStart = 0;
@@ -76,6 +78,9 @@ public class Teleop1 extends OpMode {
 
         grabLeft = hardwareMap.get(Servo.class, "grabLeft");
         grabRight = hardwareMap.get(Servo.class, "grabRight");
+        grabFoundationLeft = hardwareMap.get(Servo.class, "grabFoundationLeft");
+        grabFoundationRight = hardwareMap.get(Servo.class, "grabFoundationRight");
+
 
         grabStartPosL = grabLeft.getPosition();
         grabStartPosR = grabRight.getPosition();
@@ -123,8 +128,17 @@ public class Teleop1 extends OpMode {
         if(gamepad2.x && grabPos < 1){
             grabPos += 0.05;
         }
-        if(gamepad2.y && grabPos > -1){
+        if(gamepad2.y && grabPos > -0.5){
             grabPos -= 0.05;
+        }
+
+        if(gamepad2.a){
+            grabFoundationLeft.setPosition(1);
+            grabFoundationRight.setPosition(-1);
+        }
+        if(gamepad2.b){
+            grabFoundationLeft.setPosition(-1);
+            grabFoundationRight.setPosition(1);
         }
 
         grabLeft.setPosition(left_servo_start - grabPos);

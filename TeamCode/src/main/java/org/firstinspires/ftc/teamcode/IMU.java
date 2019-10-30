@@ -18,6 +18,11 @@ import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
 public class IMU {
 
 
+    public enum HeadingAxis{
+        ROLL, PITCH, YAW
+    }
+
+
     //how the IMU outputs data
     private Orientation angles;
 
@@ -30,7 +35,7 @@ public class IMU {
     private double headingAngleOffset = 0;
 
 
-
+    private HeadingAxis headingAxis = HeadingAxis.YAW;
 
 
 
@@ -54,7 +59,23 @@ public class IMU {
 
     public double getHeading() {
         angles = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES);
+        switch(headingAxis){
+            case ROLL:
+                return angles.thirdAngle - headingAngleOffset;
+            case PITCH:
+                return angles.secondAngle - headingAngleOffset;
+            case YAW:
+                return angles.firstAngle - headingAngleOffset;
+        }
         return angles.firstAngle - headingAngleOffset;
+    }
+
+    public HeadingAxis getHeadingAxis(){
+        return headingAxis;
+    }
+
+    public void setHeadingAxis(IMU.HeadingAxis newHeadingAxis){
+        headingAxis = newHeadingAxis;
     }
 
 

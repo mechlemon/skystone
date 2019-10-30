@@ -31,6 +31,7 @@ package org.firstinspires.ftc.teamcode;
 
 import android.graphics.Camera;
 
+import com.qualcomm.hardware.bosch.BNO055IMU;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
@@ -65,6 +66,7 @@ import static org.firstinspires.ftc.robotcore.external.navigation.VuforiaLocaliz
 public class SkyStoneGrab extends LinearOpMode {
 
     private Hdrive drivetrain;
+    private IMU imu;
 
     private DcMotor elevator = null;
     private DcMotor arm = null;
@@ -112,8 +114,9 @@ public class SkyStoneGrab extends LinearOpMode {
                                 hardwareMap.get(DcMotor.class, "1-2"),
                                 hardwareMap.get(DcMotor.class, "1-3"));
         drivetrain.leftMotor.setDirection(DcMotorSimple.Direction.REVERSE);
-        drivetrain.clear(); //makes sure motors don't run before hitting start!
 
+        imu = new IMU(hardwareMap.get(BNO055IMU.class,"imu"));
+        imu.initialize();
 
         elevator = hardwareMap.get(DcMotor.class, "2-0");
         arm = hardwareMap.get(DcMotor.class, "2-1");
@@ -156,7 +159,6 @@ public class SkyStoneGrab extends LinearOpMode {
 
         VuforiaTrackable stoneTarget = targetsSkyStone.get(0);
         stoneTarget.setName("Stone Target");
-
 
         // For convenience, gather together all the trackable objects in one easily-iterable collection */
         List<VuforiaTrackable> allTrackables = new ArrayList<VuforiaTrackable>();
@@ -295,7 +297,7 @@ public class SkyStoneGrab extends LinearOpMode {
         while(drivetrain.leftMotor.getCurrentPosition() < 2000){
             drivetrain.strafeMotor1.setPower(0);
             drivetrain.strafeMotor2.setPower(0);
-            drivetrain.forward(0.5);
+            drivetrain.forward(0.3);
             drivetrain.execute();
             if(isStopRequested()){
                 break;
@@ -312,6 +314,21 @@ public class SkyStoneGrab extends LinearOpMode {
         }
         arm.setPower(0);
 
+        while(drivetrain.leftMotor.getCurrentPosition() > 500){
+            drivetrain.forward(-0.3);
+            drivetrain.execute();
+            if(isStopRequested()){
+                break;
+            }
+        }
+
+        while(drivetrain.strafeMotor1.getCurrentPosition() < 2000){
+            drivetrain.left(0.5);
+            drivetrain.execute();
+            if(isStopRequested()){
+                break;
+            }
+        }
 
 
         if(isStopRequested()){

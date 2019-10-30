@@ -23,6 +23,7 @@ public class Hdrive {
         this.rightMotor = rightMotor;
         this.strafeMotor1 = strafeMotor1;
         this.strafeMotor2 = strafeMotor2;
+        clear(); //makes sure the drivetrain doesn't move upon initialization
     }
 
 
