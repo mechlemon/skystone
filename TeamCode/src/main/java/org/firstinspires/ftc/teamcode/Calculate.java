@@ -100,6 +100,11 @@ public class Calculate {
         return AngleUnit.DEGREES.normalize(degrees);
     }
 
+// RANDOM MATH
+    public static double average(double a, double b){
+        return 0.5 * (a + b);
+    }
+
 
 
 

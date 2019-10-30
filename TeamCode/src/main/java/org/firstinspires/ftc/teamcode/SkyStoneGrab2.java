@@ -56,16 +56,91 @@ import static org.firstinspires.ftc.robotcore.external.navigation.AxesReference.
 import static org.firstinspires.ftc.robotcore.external.navigation.VuforiaLocalizer.CameraDirection.BACK;
 
 
-@Autonomous(name="SkyStoneGrabRed", group ="comp")
+@Autonomous(name="SkyStoneGrabRed2", group ="comp")
 
 public class SkyStoneGrab2 extends LinearOpMode {
 
+    public enum Status{
+        FORWARD2SCAN,
+        SCANNING,
+        FORWARD2GRAB,
+        GRAB,
+        BACK2WALL,
+        LEFT2FOUNDATION,
+        FORWARD2FOUNDATION,
+
+        DONE,
+
+    }
+
     Hardware hardware;
+    Status status = Status.FORWARD2SCAN;
 
     @Override public void runOpMode() {
         hardware = new Hardware(hardwareMap, telemetry);
-        hardware.drivetrain.left(1);
-        hardware.drivetrain.execute();
+        hardware.imu.setHeadingAxis(IMU.HeadingAxis.ROLL);
+
+        waitForStart();
+
+        while(!isStopRequested()){
+            switch(status){
+
+                case FORWARD2SCAN:
+                    if(1200 > Calculate.average(hardware.drivetrain.leftMotor.getCurrentPosition(), hardware.drivetrain.rightMotor.getCurrentPosition())){
+                        hardware.drivetrain.forward(0.3);
+                    }else{
+                        hardware.drivetrain.clear();
+                        status = Status.SCANNING;
+                    }
+
+                case SCANNING:
+                    if(hardware.vuforiaPhone.getSkystoneTranslation() != null){
+                        double skystoneX = hardware.vuforiaPhone.getSkystoneTranslation().get(0);
+                        hardware.drivetrain.left(0.05 * skystoneX);
+                        if(10 > Math.abs(skystoneX)){
+                            hardware.drivetrain.clear();
+                            status = Status.FORWARD2GRAB;
+                        }
+                    }else{
+                        hardware.drivetrain.left(0.4);
+                    }
+
+                case FORWARD2GRAB:
+                    if(1400 > Calculate.average(hardware.drivetrain.leftMotor.getCurrentPosition(), hardware.drivetrain.rightMotor.getCurrentPosition())){
+                        hardware.drivetrain.forward(0.3);
+                    }else{
+                        hardware.drivetrain.clear();
+                        status = Status.GRAB;
+                    }
+
+                case GRAB:
+                    hardware.drivetrain.forward(0.3);
+
+                case BACK2WALL:
+                    hardware.drivetrain.forward(0.3);
+
+                case DONE:
+                    hardware.resetAll();
+
+
+            }
+
+            hardware.drivetrain.execute();
+            telemetry.addData("Status", status);
+            telemetry.addData("targetPos", hardware.vuforiaPhone.getSkystoneTranslation().get(0));
+            telemetry.addData("heading", hardware.imu.getHeading());
+            telemetry.addData("driveL", hardware.drivetrain.leftMotor.getCurrentPosition());
+            telemetry.addData("driveR", hardware.drivetrain.rightMotor.getCurrentPosition());
+            telemetry.addData("driveStrafe", hardware.drivetrain.strafeMotor1.getCurrentPosition());
+            telemetry.addData("arm", hardware.arm.getCurrentPosition());
+            telemetry.addData("grabL", hardware.grabLeft.getPosition());
+            telemetry.addData("grabR", hardware.grabRight.getPosition());
+            telemetry.addData("grabFoundationL", hardware.grabFoundationLeft.getPosition());
+            telemetry.addData("grabFoundationR", hardware.grabFoundationRight.getPosition());
+            telemetry.update();
+        }
+
+
     }
 
 }

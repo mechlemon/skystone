@@ -15,16 +15,16 @@ public class Hardware {
 
     public DcMotor elevator;
     public DcMotor arm;
-    public DcMotor cMech;
-    public DcMotor dMech;
 
     public Servo grabLeft;
     public Servo grabRight;
+    public Servo grabFoundationLeft;
+    public Servo grabFoundationRight;
 
     private double left_servo_start = 0.5;
     private double right_servo_start = 0.25;
 
-    private double armPosStart = 0;
+    public double armPosStart = 0;
 
     public IMU imu;
     public VuforiaPhone vuforiaPhone;
@@ -40,11 +40,13 @@ public class Hardware {
 
         elevator = hardwareMap.get(DcMotor.class, "2-0");
         arm = hardwareMap.get(DcMotor.class, "2-1");
-        cMech = hardwareMap.get(DcMotor.class, "2-2");
-        dMech = hardwareMap.get(DcMotor.class, "2-3");
 
+        // stone intake
         grabLeft = hardwareMap.get(Servo.class, "grabLeft");
         grabRight = hardwareMap.get(Servo.class, "grabRight");
+        // foundation grabber
+        grabFoundationLeft = hardwareMap.get(Servo.class, "grabFoundationLeft");
+        grabFoundationRight = hardwareMap.get(Servo.class, "grabFoundationRight");
 
         left_servo_start = grabLeft.getPosition();
         right_servo_start = grabRight.getPosition();
@@ -59,6 +61,14 @@ public class Hardware {
 
         telemetry.addData("Status", "Initialized");
         telemetry.update(); //needs to be run every time you send something
+    }
+
+    public void resetAll(){
+        drivetrain.clear();
+        arm.setPower(0);
+        elevator.setPower(0);
+        grabLeft.setPosition(left_servo_start);
+        grabRight.setPosition(right_servo_start);
     }
 
 }
