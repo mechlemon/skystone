@@ -130,6 +130,9 @@ public class VuforiaPhone {
         VuforiaTrackable rear2 = targetsSkyStone.get(12);
         rear2.setName("Rear Perimeter 2");
 
+        // For convenience, gather together all the trackable objects in one easily-iterable collection */
+        allTrackables.addAll(targetsSkyStone);
+
         /**
          * In order for localization to work, we need to tell the system where each target is on the field, and
          * where the phone resides on the robot.  These specifications are in the form of <em>transformation matrices.</em>
@@ -233,8 +236,8 @@ public class VuforiaPhone {
 
         // Next, translate the camera lens to where it is on the robot.
         // In this example, it is centered (left to right), but forward of the middle of the robot, and above ground level.
-        final float CAMERA_FORWARD_DISPLACEMENT  = 4.0f * mmPerInch;   // eg: Camera is 4 Inches in front of robot center
-        final float CAMERA_VERTICAL_DISPLACEMENT = 8.0f * mmPerInch;   // eg: Camera is 8 Inches above ground
+        final float CAMERA_FORWARD_DISPLACEMENT  = 0f * mmPerInch;   // eg: Camera is 4 Inches in front of robot center
+        final float CAMERA_VERTICAL_DISPLACEMENT = 0f * mmPerInch;   // eg: Camera is 8 Inches above ground
         final float CAMERA_LEFT_DISPLACEMENT     = 0;     // eg: Camera is ON the robot's center line
 
         OpenGLMatrix robotFromCamera = OpenGLMatrix
@@ -247,6 +250,7 @@ public class VuforiaPhone {
         }
 
         targetsSkyStone.activate();
+        CameraDevice.getInstance().setFlashTorchMode(true);
     }
 
 
@@ -301,7 +305,7 @@ public class VuforiaPhone {
             }
 
             VectorF translation = lastLocation.getTranslation();
-            telemetry.addData("Visible Target", "skystone");
+            telemetry.addData("Visible Target", translation);
             return translation;
         }
         telemetry.addData("Visible Target", "none");

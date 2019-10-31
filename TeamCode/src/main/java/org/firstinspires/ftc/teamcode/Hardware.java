@@ -21,8 +21,8 @@ public class Hardware {
     public Servo grabFoundationLeft;
     public Servo grabFoundationRight;
 
-    private double left_servo_start = 0.5;
-    private double right_servo_start = 0.25;
+    private double left_servo_start;
+    private double right_servo_start;
 
     public double armPosStart = 0;
 
@@ -36,6 +36,8 @@ public class Hardware {
                                 hardwareMap.get(DcMotor.class, "1-2"),
                                 hardwareMap.get(DcMotor.class, "1-3"));
         drivetrain.leftMotor.setDirection(DcMotorSimple.Direction.REVERSE);
+        drivetrain.strafeMotor1.setDirection(DcMotorSimple.Direction.REVERSE);
+        drivetrain.strafeMotor2.setDirection(DcMotorSimple.Direction.REVERSE);
 
 
         elevator = hardwareMap.get(DcMotor.class, "2-0");
@@ -63,12 +65,15 @@ public class Hardware {
         telemetry.update(); //needs to be run every time you send something
     }
 
-    public void resetAll(){
+    public void clamp(double grabPos){
+        grabLeft.setPosition(left_servo_start - grabPos);
+        grabRight.setPosition(right_servo_start + grabPos);
+    }
+
+    public void resetMotors(){
         drivetrain.clear();
         arm.setPower(0);
         elevator.setPower(0);
-        grabLeft.setPosition(left_servo_start);
-        grabRight.setPosition(right_servo_start);
     }
 
 }

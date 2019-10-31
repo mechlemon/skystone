@@ -74,7 +74,7 @@ public class SkyStoneGrab2 extends LinearOpMode {
     }
 
     Hardware hardware;
-    Status status = Status.FORWARD2SCAN;
+    Status status;
 
     @Override public void runOpMode() {
         hardware = new Hardware(hardwareMap, telemetry);
@@ -82,53 +82,86 @@ public class SkyStoneGrab2 extends LinearOpMode {
 
         waitForStart();
 
+        status = Status.FORWARD2SCAN;
+
         while(!isStopRequested()){
-            switch(status){
+            hardware.clamp(1);
+            hardware.clamp(0);
+            hardware.clamp(1);
+            hardware.clamp(0);
+            try {
+                switch (status) {
 
-                case FORWARD2SCAN:
-                    if(1200 > Calculate.average(hardware.drivetrain.leftMotor.getCurrentPosition(), hardware.drivetrain.rightMotor.getCurrentPosition())){
-                        hardware.drivetrain.forward(0.3);
-                    }else{
-                        hardware.drivetrain.clear();
-                        status = Status.SCANNING;
-                    }
-
-                case SCANNING:
-                    if(hardware.vuforiaPhone.getSkystoneTranslation() != null){
-                        double skystoneX = hardware.vuforiaPhone.getSkystoneTranslation().get(0);
-                        hardware.drivetrain.left(0.05 * skystoneX);
-                        if(10 > Math.abs(skystoneX)){
+                    case FORWARD2SCAN:
+                        if (1100 > Calculate.average(hardware.drivetrain.leftMotor.getCurrentPosition(), hardware.drivetrain.rightMotor.getCurrentPosition())) {
+                            hardware.drivetrain.forward(0.4);
+                        } else {
                             hardware.drivetrain.clear();
-                            status = Status.FORWARD2GRAB;
+                            try{
+                                wait(500);
+                            }catch (Exception e){
+                                telemetry.addData("error", e);
+                            }
+                            status = Status.SCANNING;
                         }
-                    }else{
-                        hardware.drivetrain.left(0.4);
-                    }
+                        break;
 
-                case FORWARD2GRAB:
-                    if(1400 > Calculate.average(hardware.drivetrain.leftMotor.getCurrentPosition(), hardware.drivetrain.rightMotor.getCurrentPosition())){
-                        hardware.drivetrain.forward(0.3);
-                    }else{
-                        hardware.drivetrain.clear();
-                        status = Status.GRAB;
-                    }
+                    case SCANNING:
+                        if (hardware.vuforiaPhone.getSkystoneTranslation() != null) {
+                            double skystoneX = hardware.vuforiaPhone.getSkystoneTranslation().get(1) - 40;
+                            hardware.drivetrain.right(0.01 * skystoneX + Math.copySign(0.15,skystoneX));
+                            if (10 > Math.abs(skystoneX)) {
+                                hardware.drivetrain.clear();
+                                status = Status.FORWARD2GRAB;
+                            }
+                            telemetry.addData("targetPos", skystoneX);
 
-                case GRAB:
-                    hardware.drivetrain.forward(0.3);
+                        } else {
+                            hardware.drivetrain.left(0.22);
+                        }
+                        break;
 
-                case BACK2WALL:
-                    hardware.drivetrain.forward(0.3);
+                    case FORWARD2GRAB:
+                        if (1600 > Calculate.average(hardware.drivetrain.leftMotor.getCurrentPosition(), hardware.drivetrain.rightMotor.getCurrentPosition())) {
+                            hardware.drivetrain.forward(0.35);
+                        } else {
+                            hardware.drivetrain.clear();
+                            status = Status.GRAB;
+                        }
+                        break;
 
-                case DONE:
-                    hardware.resetAll();
+                    case GRAB:
+                        hardware.clamp(1);
+
+                        try{
+                            wait(1000);
+                        }catch (Exception e){
+                            telemetry.addData("error", e);
+                        }
+
+                        if (400 > hardware.arm.getCurrentPosition()) {
+                            hardware.arm.setPower(0.3);
+                        } else {
+                            hardware.resetMotors();
+                            status = Status.BACK2WALL;
+                        }
+                        break;
 
 
-            }
+                    case BACK2WALL:
+                        hardware.drivetrain.back(0.5);
+                        break;
+
+                    case DONE:
+                        hardware.resetMotors();
+                        break;
+
+
+                }
 
             hardware.drivetrain.execute();
             telemetry.addData("Status", status);
-            telemetry.addData("targetPos", hardware.vuforiaPhone.getSkystoneTranslation().get(0));
-            telemetry.addData("heading", hardware.imu.getHeading());
+//            telemetry.addData("heading", hardware.imu.getHeading());
             telemetry.addData("driveL", hardware.drivetrain.leftMotor.getCurrentPosition());
             telemetry.addData("driveR", hardware.drivetrain.rightMotor.getCurrentPosition());
             telemetry.addData("driveStrafe", hardware.drivetrain.strafeMotor1.getCurrentPosition());
@@ -138,6 +171,10 @@ public class SkyStoneGrab2 extends LinearOpMode {
             telemetry.addData("grabFoundationL", hardware.grabFoundationLeft.getPosition());
             telemetry.addData("grabFoundationR", hardware.grabFoundationRight.getPosition());
             telemetry.update();
+            }catch(Exception e){
+                telemetry.addData("error", e);
+                telemetry.update();
+            }
         }
 
 
