@@ -29,31 +29,8 @@
 
 package org.firstinspires.ftc.teamcode;
 
-import com.qualcomm.hardware.bosch.BNO055IMU;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
-import com.qualcomm.robotcore.hardware.DcMotor;
-import com.qualcomm.robotcore.hardware.DcMotorSimple;
-import com.qualcomm.robotcore.hardware.Servo;
-import com.vuforia.CameraDevice;
-
-import org.firstinspires.ftc.robotcore.external.ClassFactory;
-import org.firstinspires.ftc.robotcore.external.matrices.OpenGLMatrix;
-import org.firstinspires.ftc.robotcore.external.matrices.VectorF;
-import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
-import org.firstinspires.ftc.robotcore.external.navigation.VuforiaLocalizer;
-import org.firstinspires.ftc.robotcore.external.navigation.VuforiaTrackable;
-import org.firstinspires.ftc.robotcore.external.navigation.VuforiaTrackableDefaultListener;
-import org.firstinspires.ftc.robotcore.external.navigation.VuforiaTrackables;
-
-import java.util.ArrayList;
-import java.util.List;
-
-import static org.firstinspires.ftc.robotcore.external.navigation.AngleUnit.DEGREES;
-import static org.firstinspires.ftc.robotcore.external.navigation.AxesOrder.XYZ;
-import static org.firstinspires.ftc.robotcore.external.navigation.AxesOrder.YZX;
-import static org.firstinspires.ftc.robotcore.external.navigation.AxesReference.EXTRINSIC;
-import static org.firstinspires.ftc.robotcore.external.navigation.VuforiaLocalizer.CameraDirection.BACK;
 
 
 @Autonomous(name="SkyStoneGrabRed2", group ="comp")
@@ -64,10 +41,13 @@ public class SkyStoneGrab2 extends LinearOpMode {
         FORWARD2SCAN,
         SCANNING,
         FORWARD2GRAB,
-        GRAB,
+        GRABSTONE,
+        LIFTSTONE,
         BACK2WALL,
-        LEFT2FOUNDATION,
+        RIGHT2FOUNDATION,
         FORWARD2FOUNDATION,
+        GRABFOUNDATION,
+
 
         DONE,
 
@@ -75,6 +55,7 @@ public class SkyStoneGrab2 extends LinearOpMode {
 
     Hardware hardware;
     Status status;
+    Timer timer = new Timer();
 
     @Override public void runOpMode() {
         hardware = new Hardware(hardwareMap, telemetry);
@@ -85,82 +66,86 @@ public class SkyStoneGrab2 extends LinearOpMode {
         status = Status.FORWARD2SCAN;
 
         while(!isStopRequested()){
-            hardware.clamp(1);
-            hardware.clamp(0);
-            hardware.clamp(1);
-            hardware.clamp(0);
-            try {
-                switch (status) {
 
-                    case FORWARD2SCAN:
-                        if (1100 > Calculate.average(hardware.drivetrain.leftMotor.getCurrentPosition(), hardware.drivetrain.rightMotor.getCurrentPosition())) {
-                            hardware.drivetrain.forward(0.4);
-                        } else {
+            switch (status) {
+
+                case FORWARD2SCAN:
+                    if (1100 > Calculate.average(hardware.drivetrain.leftMotor.getCurrentPosition(), hardware.drivetrain.rightMotor.getCurrentPosition())) {
+                        hardware.drivetrain.forward(0.4);
+                    } else {
+                        hardware.drivetrain.clear();
+                        timer.set(0.5);
+                        status = Status.SCANNING;
+                    }
+                    break;
+
+                case SCANNING:
+                    if(!timer.isDone()) break;
+                    if (hardware.vuforiaPhone.getSkystoneTranslation() != null) {
+                        double skystoneX = hardware.vuforiaPhone.getSkystoneTranslation().get(1) - 40;
+                        hardware.drivetrain.right(0.01 * skystoneX + Math.copySign(0.15,skystoneX));
+                        if (10 > Math.abs(skystoneX)) {
                             hardware.drivetrain.clear();
-                            try{
-                                wait(500);
-                            }catch (Exception e){
-                                telemetry.addData("error", e);
-                            }
-                            status = Status.SCANNING;
+                            status = Status.FORWARD2GRAB;
                         }
-                        break;
+                        telemetry.addData("targetPos", skystoneX);
 
-                    case SCANNING:
-                        if (hardware.vuforiaPhone.getSkystoneTranslation() != null) {
-                            double skystoneX = hardware.vuforiaPhone.getSkystoneTranslation().get(1) - 40;
-                            hardware.drivetrain.right(0.01 * skystoneX + Math.copySign(0.15,skystoneX));
-                            if (10 > Math.abs(skystoneX)) {
-                                hardware.drivetrain.clear();
-                                status = Status.FORWARD2GRAB;
-                            }
-                            telemetry.addData("targetPos", skystoneX);
+                    } else {
+                        hardware.drivetrain.left(0.22);
+                    }
+                    break;
 
-                        } else {
-                            hardware.drivetrain.left(0.22);
-                        }
-                        break;
+                case FORWARD2GRAB:
+                    if (1600 > Calculate.average(hardware.drivetrain.leftMotor.getCurrentPosition(), hardware.drivetrain.rightMotor.getCurrentPosition())) {
+                        hardware.drivetrain.forward(0.35);
+                    } else {
+                        hardware.drivetrain.clear();
+                        status = Status.GRABSTONE;
+                    }
+                    break;
 
-                    case FORWARD2GRAB:
-                        if (1600 > Calculate.average(hardware.drivetrain.leftMotor.getCurrentPosition(), hardware.drivetrain.rightMotor.getCurrentPosition())) {
-                            hardware.drivetrain.forward(0.35);
-                        } else {
-                            hardware.drivetrain.clear();
-                            status = Status.GRAB;
-                        }
-                        break;
+                case GRABSTONE:
+                    hardware.clampStone(1);
+                    timer.set(1);
+                    status = Status.LIFTSTONE;
+                    break;
 
-                    case GRAB:
-                        hardware.clamp(1);
+                case LIFTSTONE:
+                    if(!timer.isDone()) break;
+                    if(400 > hardware.arm.getCurrentPosition()) {
+                        hardware.arm.setPower(0.3);
+                    } else {
+                        hardware.arm.setPower(0);
+                        hardware.drivetrain.back(0.4);
+                        timer.set(2);
+                        status = Status.BACK2WALL;
+                    }
+                    break;
 
-                        try{
-                            wait(1000);
-                        }catch (Exception e){
-                            telemetry.addData("error", e);
-                        }
+                case BACK2WALL:
+                    if(!timer.isDone()) break;
+                    hardware.drivetrain.right(1);
+                    timer.set(3);
+                    status = Status.RIGHT2FOUNDATION;
+                    break;
 
-                        if (400 > hardware.arm.getCurrentPosition()) {
-                            hardware.arm.setPower(0.3);
-                        } else {
-                            hardware.resetMotors();
-                            status = Status.BACK2WALL;
-                        }
-                        break;
-
-
-                    case BACK2WALL:
-                        hardware.drivetrain.back(0.5);
-                        break;
-
-                    case DONE:
-                        hardware.resetMotors();
-                        break;
+                case RIGHT2FOUNDATION:
+                    if(!timer.isDone()) break;
+                    status = Status.DONE;
+                    break;
 
 
-                }
+
+                case DONE:
+                    hardware.resetMotors();
+                    break;
+
+
+            }
 
             hardware.drivetrain.execute();
             telemetry.addData("Status", status);
+            telemetry.addData("timerElapsed", timer.getElapsed());
 //            telemetry.addData("heading", hardware.imu.getHeading());
             telemetry.addData("driveL", hardware.drivetrain.leftMotor.getCurrentPosition());
             telemetry.addData("driveR", hardware.drivetrain.rightMotor.getCurrentPosition());
@@ -171,10 +156,7 @@ public class SkyStoneGrab2 extends LinearOpMode {
             telemetry.addData("grabFoundationL", hardware.grabFoundationLeft.getPosition());
             telemetry.addData("grabFoundationR", hardware.grabFoundationRight.getPosition());
             telemetry.update();
-            }catch(Exception e){
-                telemetry.addData("error", e);
-                telemetry.update();
-            }
+
         }
 
 

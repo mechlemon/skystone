@@ -65,9 +65,14 @@ public class Hardware {
         telemetry.update(); //needs to be run every time you send something
     }
 
-    public void clamp(double grabPos){
+    public void clampStone(double grabPos){
         grabLeft.setPosition(left_servo_start - grabPos);
         grabRight.setPosition(right_servo_start + grabPos);
+    }
+
+    public void clampFoundation(double grabPos){
+        grabFoundationLeft.setPosition(grabPos);
+        grabFoundationRight.setPosition(-grabPos);
     }
 
     public void resetMotors(){
