@@ -34,6 +34,7 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
+import com.qualcomm.robotcore.hardware.RobotConfigNameable;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.vuforia.CameraDevice;
 
@@ -57,22 +58,25 @@ import static org.firstinspires.ftc.robotcore.external.navigation.AxesReference.
 import static org.firstinspires.ftc.robotcore.external.navigation.VuforiaLocalizer.CameraDirection.BACK;
 
 
-@TeleOp(name="skystonedetect", group ="concept")
+@TeleOp(name="Tester", group ="concept")
 
-public class SkyStoneDetect extends LinearOpMode {
+public class Tester extends LinearOpMode {
 
     public void runOpMode() {
-//        VuforiaPhone vuforiaPhone = new VuforiaPhone(hardwareMap, telemetry);
         Hardware hardware = new Hardware(hardwareMap, telemetry);
         waitForStart();
-        Timer timer = new Timer();
         while(!isStopRequested()){
-            if(timer.getElapsed() % 1 > 0.5){
-                hardware.clampStone();
-            }else{
-                hardware.dropStone();
-            }
-//            vuforiaPhone.getSkystoneTranslation();
+
+            double turnpower = hardware.imu.getHeading() * (1/90.0);
+
+            hardware.drivetrain.setleftPower(turnpower);
+            hardware.drivetrain.setrightPower(-turnpower);
+
+            hardware.drivetrain.execute();
+            telemetry.addData("heading", hardware.imu.getHeading());
+            telemetry.addData("Ldrive", hardware.getLeftDrivePos());
+            telemetry.addData("Rdrive", hardware.getRightDrivePos());
+            telemetry.addData("S1drive", hardware.getStrafeDrive1Pos());
             telemetry.update();
         }
     }

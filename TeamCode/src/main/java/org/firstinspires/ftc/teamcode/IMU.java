@@ -59,15 +59,10 @@ public class IMU {
 
     public double getHeading() {
         angles = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES);
-        switch(headingAxis){
-            case ROLL:
-                return angles.thirdAngle - headingAngleOffset;
-            case PITCH:
-                return angles.secondAngle - headingAngleOffset;
-            case YAW:
-                return angles.firstAngle - headingAngleOffset;
-        }
-        return angles.firstAngle - headingAngleOffset;
+        if(headingAxis == HeadingAxis.ROLL) return angles.thirdAngle - headingAngleOffset;
+        if(headingAxis == HeadingAxis.PITCH) return angles.secondAngle - headingAngleOffset;
+        if(headingAxis == HeadingAxis.YAW) return angles.firstAngle - headingAngleOffset;
+        return 0;
     }
 
     public HeadingAxis getHeadingAxis(){

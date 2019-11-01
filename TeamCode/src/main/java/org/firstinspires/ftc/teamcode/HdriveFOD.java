@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode;
 
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
@@ -11,6 +12,7 @@ import com.qualcomm.hardware.bosch.BNO055IMU;
 
 //This annotation tells the driverstation phone about the program.
 @TeleOp(name = "HdriveFOD", group = "concept")
+@Disabled
 
 //we extend OpMode which is like a library that gives us functions to interact with the FTC hardware.
 public class HdriveFOD extends OpMode {

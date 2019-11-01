@@ -11,7 +11,13 @@ import org.firstinspires.ftc.robotcore.external.Telemetry;
 //makes a robot, including motors, servos, imu
 public class Hardware {
 
+    final double WHEEL_CIRCUMFERENCE = 4 * Math.PI;
+    final double DRIVE_GEAR_RATIO = 24/16.0;
+    final double TICKS_PER_REV = 1440; //tetrix encoder
+
     public Hdrive drivetrain;
+
+    public double left_drive_zero, right_drive_zero, strafe1_drive_zero, strafe2_drive_zero;
 
     public DcMotor elevator;
     public DcMotor arm;
@@ -56,6 +62,7 @@ public class Hardware {
         armPosStart = arm.getCurrentPosition();
 
         imu = new IMU(hardwareMap.get(BNO055IMU.class,"imu"));
+        imu.setHeadingAxis(IMU.HeadingAxis.ROLL);
         imu.initialize();
 
         vuforiaPhone = new VuforiaPhone(hardwareMap, telemetry);
@@ -96,5 +103,23 @@ public class Hardware {
         arm.setPower(0);
         elevator.setPower(0);
     }
+
+    public void resetEncoders(){
+        left_drive_zero = drivetrain.leftMotor.getCurrentPosition();
+        right_drive_zero = drivetrain.rightMotor.getCurrentPosition();
+        strafe1_drive_zero = drivetrain.strafeMotor1.getCurrentPosition();
+        strafe2_drive_zero = drivetrain.strafeMotor1.getCurrentPosition();
+    }
+
+    public double getLeftDrivePos(){ //inches
+        return (drivetrain.leftMotor.getCurrentPosition() - left_drive_zero) * DRIVE_GEAR_RATIO * WHEEL_CIRCUMFERENCE * (1/TICKS_PER_REV);
+    }
+    public double getRightDrivePos(){ //inches
+        return (drivetrain.rightMotor.getCurrentPosition() - right_drive_zero) * DRIVE_GEAR_RATIO * WHEEL_CIRCUMFERENCE * (1/TICKS_PER_REV);
+    }
+    public double getStrafeDrive1Pos(){ //inches
+        return (drivetrain.strafeMotor1.getCurrentPosition() - strafe1_drive_zero) * DRIVE_GEAR_RATIO * WHEEL_CIRCUMFERENCE * (1/TICKS_PER_REV);
+    }
+
 
 }

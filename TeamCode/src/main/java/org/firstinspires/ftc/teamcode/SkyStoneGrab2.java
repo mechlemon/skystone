@@ -81,7 +81,7 @@ public class SkyStoneGrab2 extends LinearOpMode {
             if(status == Status.SCANNING) {
                 if(1 < timer.getElapsed()) {
                     if (hardware.vuforiaPhone.getSkystoneTranslation() != null) {
-                        double skystoneX = hardware.vuforiaPhone.getSkystoneTranslation().get(1) - 58;
+                        double skystoneX = hardware.vuforiaPhone.getSkystoneTranslation().get(1) - 55;
                         hardware.drivetrain.right(0.01 * skystoneX + Math.copySign(0.15, skystoneX));
                         if (10 > Math.abs(skystoneX)) {
                             hardware.drivetrain.setPowers(0,0,0);
@@ -151,7 +151,7 @@ public class SkyStoneGrab2 extends LinearOpMode {
             hardware.drivetrain.execute();
             telemetry.addData("Status", status);
             telemetry.addData("TimerElapsed", timer.getElapsed());
-//            telemetry.addData("heading", hardware.imu.getHeading());
+            telemetry.addData("heading", hardware.imu.getHeading());
             telemetry.addData("driveL", hardware.drivetrain.leftMotor.getCurrentPosition());
             telemetry.addData("driveR", hardware.drivetrain.rightMotor.getCurrentPosition());
             telemetry.addData("driveStrafe", hardware.drivetrain.strafeMotor1.getCurrentPosition());
