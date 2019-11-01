@@ -65,10 +65,26 @@ public class Hardware {
         telemetry.update(); //needs to be run every time you send something
     }
 
-    public void clampStone(double grabPos){
-        grabLeft.setPosition(left_servo_start - grabPos);
-        grabRight.setPosition(right_servo_start + grabPos);
+    public void clampStone(){
+        grabLeft.setPosition(0.2);
+        grabRight.setPosition(0.55);
     }
+
+    public void dropStone(){
+        grabLeft.setPosition(0.45);
+        grabRight.setPosition(0.3);
+    }
+
+    public void openClaw(){
+        grabLeft.setPosition(0.6);
+        grabRight.setPosition(0.15);
+    }
+
+    public void armApplyAntigrav(double power){
+        double armPos = (arm.getCurrentPosition() - armPosStart) * (16/24.0) * (360/1440.0) - 80;
+        arm.setPower(power + 0.15 * Math.cos(Math.toRadians(armPos)));
+    }
+
 
     public void clampFoundation(double grabPos){
         grabFoundationLeft.setPosition(grabPos);

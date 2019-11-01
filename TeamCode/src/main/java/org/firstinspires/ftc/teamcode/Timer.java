@@ -3,18 +3,17 @@ package org.firstinspires.ftc.teamcode;
 public class Timer {
 
     double starttime;
-    double duration;
 
-    void set(double seconds){
-        starttime = 1e9 * System.nanoTime();
-        duration = seconds;
+    Timer(){
+        starttime = 1e-9 * System.nanoTime();
     }
 
     double getElapsed(){
-        return 1e9 * System.nanoTime() - starttime;
+        return 1e-9 * System.nanoTime() - starttime;
     }
 
-    boolean isDone(){
-        return getElapsed() > duration;
+    void reset(){
+        starttime = 1e-9 * System.nanoTime();
     }
+
 }

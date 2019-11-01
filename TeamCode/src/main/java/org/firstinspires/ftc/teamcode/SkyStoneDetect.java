@@ -62,10 +62,17 @@ import static org.firstinspires.ftc.robotcore.external.navigation.VuforiaLocaliz
 public class SkyStoneDetect extends LinearOpMode {
 
     public void runOpMode() {
-        VuforiaPhone vuforiaPhone = new VuforiaPhone(hardwareMap, telemetry);
+//        VuforiaPhone vuforiaPhone = new VuforiaPhone(hardwareMap, telemetry);
+        Hardware hardware = new Hardware(hardwareMap, telemetry);
         waitForStart();
+        Timer timer = new Timer();
         while(!isStopRequested()){
-            vuforiaPhone.getSkystoneTranslation();
+            if(timer.getElapsed() % 1 > 0.5){
+                hardware.clampStone();
+            }else{
+                hardware.dropStone();
+            }
+//            vuforiaPhone.getSkystoneTranslation();
             telemetry.update();
         }
     }
