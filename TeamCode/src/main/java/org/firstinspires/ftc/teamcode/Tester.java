@@ -67,13 +67,10 @@ public class Tester extends LinearOpMode {
         waitForStart();
         while(!isStopRequested()){
 
-            double turnpower = hardware.imu.getHeading() * (1/90.0);
-
-            hardware.drivetrain.setleftPower(turnpower);
-            hardware.drivetrain.setrightPower(-turnpower);
+            hardware.steadyTranslation(-gamepad1.left_stick_x, -gamepad1.left_stick_y);
 
             hardware.drivetrain.execute();
-            telemetry.addData("heading", hardware.imu.getHeading());
+            telemetry.addData("heading", hardware.imu.getOrientation());
             telemetry.addData("Ldrive", hardware.getLeftDrivePos());
             telemetry.addData("Rdrive", hardware.getRightDrivePos());
             telemetry.addData("S1drive", hardware.getStrafeDrive1Pos());

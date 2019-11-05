@@ -65,6 +65,10 @@ public class IMU {
         return 0;
     }
 
+    public Orientation getOrientation(){
+        return angles;
+    }
+
     public HeadingAxis getHeadingAxis(){
         return headingAxis;
     }

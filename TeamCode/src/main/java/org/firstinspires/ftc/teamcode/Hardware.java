@@ -30,7 +30,7 @@ public class Hardware {
     private double left_servo_start;
     private double right_servo_start;
 
-    public double armPosStart = 0;
+    public double armPosStart;
 
     public IMU imu;
     public VuforiaPhone vuforiaPhone;
@@ -62,7 +62,7 @@ public class Hardware {
         armPosStart = arm.getCurrentPosition();
 
         imu = new IMU(hardwareMap.get(BNO055IMU.class,"imu"));
-        imu.setHeadingAxis(IMU.HeadingAxis.ROLL);
+        imu.setHeadingAxis(IMU.HeadingAxis.YAW);
         imu.initialize();
 
         vuforiaPhone = new VuforiaPhone(hardwareMap, telemetry);
@@ -86,6 +86,8 @@ public class Hardware {
         grabLeft.setPosition(0.6);
         grabRight.setPosition(0.15);
     }
+
+
 
     public void armApplyAntigrav(double power){
         double armPos = (arm.getCurrentPosition() - armPosStart) * (16/24.0) * (360/1440.0) - 80;
@@ -120,6 +122,38 @@ public class Hardware {
     public double getStrafeDrive1Pos(){ //inches
         return (drivetrain.strafeMotor1.getCurrentPosition() - strafe1_drive_zero) * DRIVE_GEAR_RATIO * WHEEL_CIRCUMFERENCE * (1/TICKS_PER_REV);
     }
+
+
+    public void steadyForward(double magnitude){
+        double error = imu.getHeading();
+        double turnpower = (1/90.0)*error + Math.copySign(0.15, error);
+
+        drivetrain.setleftPower(magnitude + turnpower);
+        drivetrain.setrightPower(magnitude - turnpower);
+    }
+
+    public void steadyLeft(double magnitude){
+        double error = imu.getHeading();
+        double turnpower = (1/90.0)*error + Math.copySign(0.15, error);
+
+        drivetrain.setrightPower(magnitude);
+        drivetrain.setleftPower(turnpower);
+        drivetrain.setrightPower(-turnpower);
+    }
+
+    public void steadyTranslation(double magnitudeX, double magnitudeY){
+        double error = imu.getHeading();
+        double turnpower = (1/90.0)*error + Math.copySign(0.15, error);
+
+        drivetrain.setrightPower(magnitudeX);
+        drivetrain.setleftPower(magnitudeY + turnpower);
+        drivetrain.setrightPower(magnitudeY - turnpower);
+    }
+
+
+
+
+
 
 
 }

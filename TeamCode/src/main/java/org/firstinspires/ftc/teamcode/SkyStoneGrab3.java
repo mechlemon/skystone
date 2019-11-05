@@ -33,9 +33,9 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
 
-@Autonomous(name="SkyStoneGrabRed2", group ="comp")
+@Autonomous(name="SkyStoneGrabRed3", group ="comp")
 
-public class SkyStoneGrab2 extends LinearOpMode {
+public class SkyStoneGrab3 extends LinearOpMode {
 
     public enum Status{
         FORWARD2SCAN,
@@ -68,8 +68,8 @@ public class SkyStoneGrab2 extends LinearOpMode {
         while(!isStopRequested()){
 
              if(status == Status.FORWARD2SCAN) {
-                 if (1100 > Calculate.average(hardware.drivetrain.leftMotor.getCurrentPosition(), hardware.drivetrain.rightMotor.getCurrentPosition())) {
-                     hardware.drivetrain.forward(0.4);
+                 if (1100 > Calculate.average(hardware.getLeftDrivePos(), hardware.getRightDrivePos())) {
+                     hardware.steadyForward(0.4);
                      hardware.dropStone();
                  } else {
                      hardware.drivetrain.setPowers(0,0,0);
@@ -85,11 +85,12 @@ public class SkyStoneGrab2 extends LinearOpMode {
                         hardware.drivetrain.right(0.01 * skystoneX + Math.copySign(0.15, skystoneX));
                         if (10 > Math.abs(skystoneX)) {
                             hardware.drivetrain.setPowers(0,0,0);
+                            hardware.resetEncoders();
                             status = Status.FORWARD2GRAB;
                         }
                         telemetry.addData("targetPos", skystoneX);
                     } else {
-                        hardware.drivetrain.left(0.25);
+                        hardware.steadyLeft(0.25);
                     }
                 }else{
                     hardware.drivetrain.setPowers(0,0,0);
@@ -97,8 +98,8 @@ public class SkyStoneGrab2 extends LinearOpMode {
             }
 
             if(status == Status.FORWARD2GRAB) {
-                if (1950 > Calculate.average(hardware.drivetrain.leftMotor.getCurrentPosition(), hardware.drivetrain.rightMotor.getCurrentPosition())) {
-                    hardware.drivetrain.forward(0.35);
+                if (850 > Calculate.average(hardware.getLeftDrivePos(), hardware.getRightDrivePos())) {
+                    hardware.steadyForward(0.35);
                 } else {
                     hardware.drivetrain.setPowers(0,0,0);
                     status = Status.GRABSTONE;
@@ -128,7 +129,7 @@ public class SkyStoneGrab2 extends LinearOpMode {
 
             if(status == Status.BACK2WALL) {
                 hardware.drivetrain.back(0.7);
-                if(3 < timer.getElapsed()){
+                if(1 < timer.getElapsed()){
                     hardware.drivetrain.setPowers(0,0,0);
                     status = Status.RIGHT2FOUNDATION;
                     timer.reset();
@@ -137,7 +138,7 @@ public class SkyStoneGrab2 extends LinearOpMode {
 
             if(status == Status.RIGHT2FOUNDATION) {
                 hardware.drivetrain.right(1);
-                if(5 < timer.getElapsed()){
+                if(2 < timer.getElapsed()){
                     hardware.drivetrain.setPowers(0,0,0);
                     status = Status.DONE;
                 }
