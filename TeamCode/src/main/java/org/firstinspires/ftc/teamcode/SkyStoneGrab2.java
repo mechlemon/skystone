@@ -81,7 +81,7 @@ public class SkyStoneGrab2 extends LinearOpMode {
             if(status == Status.SCANNING) {
                 if(1 < timer.getElapsed()) {
                     if (hardware.vuforiaPhone.getSkystoneTranslation() != null) {
-                        double skystoneX = hardware.vuforiaPhone.getSkystoneTranslation().get(1) - 55;
+                        double skystoneX = hardware.vuforiaPhone.getSkystoneTranslation().get(1) - 40;
                         hardware.drivetrain.right(0.01 * skystoneX + Math.copySign(0.15, skystoneX));
                         if (10 > Math.abs(skystoneX)) {
                             hardware.drivetrain.setPowers(0,0,0);
@@ -89,7 +89,7 @@ public class SkyStoneGrab2 extends LinearOpMode {
                         }
                         telemetry.addData("targetPos", skystoneX);
                     } else {
-                        hardware.drivetrain.left(0.25);
+                        hardware.drivetrain.left(0.18);
                     }
                 }else{
                     hardware.drivetrain.setPowers(0,0,0);
@@ -115,7 +115,7 @@ public class SkyStoneGrab2 extends LinearOpMode {
             }
 
             if(status == Status.LIFTSTONE) {
-                if (360 > hardware.arm.getCurrentPosition()) {
+                if (120 > hardware.arm.getCurrentPosition()) {
                     hardware.armApplyAntigrav(0.4);
                     hardware.drivetrain.setPowers(0,0,0);
                 } else {
@@ -127,8 +127,8 @@ public class SkyStoneGrab2 extends LinearOpMode {
             }
 
             if(status == Status.BACK2WALL) {
-                hardware.drivetrain.back(0.7);
-                if(3 < timer.getElapsed()){
+                hardware.drivetrain.back(0.5);
+                if(2 < timer.getElapsed()){
                     hardware.drivetrain.setPowers(0,0,0);
                     status = Status.RIGHT2FOUNDATION;
                     timer.reset();
@@ -136,8 +136,8 @@ public class SkyStoneGrab2 extends LinearOpMode {
             }
 
             if(status == Status.RIGHT2FOUNDATION) {
-                hardware.drivetrain.right(1);
-                if(5 < timer.getElapsed()){
+                hardware.steadyLeft(-0.6);
+                if(3 < timer.getElapsed()){
                     hardware.drivetrain.setPowers(0,0,0);
                     status = Status.DONE;
                 }

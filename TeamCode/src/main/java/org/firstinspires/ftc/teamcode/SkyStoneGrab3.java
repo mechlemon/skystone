@@ -55,6 +55,7 @@ public class SkyStoneGrab3 extends LinearOpMode {
 
     Hardware hardware;
     Status status;
+    int scan_position = 0;
 
     @Override public void runOpMode() {
         hardware = new Hardware(hardwareMap, telemetry);
@@ -79,21 +80,34 @@ public class SkyStoneGrab3 extends LinearOpMode {
              }
 
             if(status == Status.SCANNING) {
-                if(1 < timer.getElapsed()) {
-                    if (hardware.vuforiaPhone.getSkystoneTranslation() != null) {
-                        double skystoneX = hardware.vuforiaPhone.getSkystoneTranslation().get(1) - 55;
-                        hardware.drivetrain.right(0.01 * skystoneX + Math.copySign(0.15, skystoneX));
-                        if (10 > Math.abs(skystoneX)) {
-                            hardware.drivetrain.setPowers(0,0,0);
-                            hardware.resetEncoders();
-                            status = Status.FORWARD2GRAB;
-                        }
-                        telemetry.addData("targetPos", skystoneX);
-                    } else {
-                        hardware.steadyLeft(0.25);
+                if(scan_position == 0){
+                    if(hardware.vuforiaPhone.getSkystoneTranslation() != null){
+                        status = Status.FORWARD2GRAB;
                     }
-                }else{
-                    hardware.drivetrain.setPowers(0,0,0);
+                    if(1 < timer.getElapsed()){
+                        timer.reset();
+                        scan_position++;
+                    }
+                }
+                if(scan_position == 1){
+                    if(hardware.vuforiaPhone.getSkystoneTranslation() != null){
+                        status = Status.FORWARD2GRAB;
+                    }
+                    if(1 < timer.getElapsed()){
+                        scan_position++;
+                    }
+                }
+                if(scan_position == 2){
+                    scan_position++;
+                }
+                if(scan_position == 3){
+                    scan_position++;
+                }
+                if(scan_position == 4){
+                    scan_position++;
+                }
+                if(scan_position == 5){
+                    status = Status.FORWARD2GRAB;
                 }
             }
 
@@ -167,5 +181,6 @@ public class SkyStoneGrab3 extends LinearOpMode {
 
 
     }
+
 
 }

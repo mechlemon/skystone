@@ -14,11 +14,8 @@ import com.qualcomm.robotcore.util.Range;
 //we extend OpMode which is like a library that gives us functions to interact with the FTC hardware.
 public class Teleop2 extends OpMode {
 
-    private double grabStartPosL = -0.5;
-    private double grabStartPosR = -0.5;
-    private double grabPos = 0;
 
-    private double armPosStart = 0;
+    private double grabPos = 0;
 
     private String[] titles = new String[] {"forwardCoeff", "turnCoeff", "strafeCoeff", "elevatorCoeff", "armCoeff",  "left_servo" , "right_servo"}; //names of the tuner values
     private double[] values = new double[] {     1        ,    0.7     ,     1        ,         1      ,    0.3    ,        0.5    ,      0.25    }; //default tuner values
@@ -31,10 +28,7 @@ public class Teleop2 extends OpMode {
     @Override
     public void init() {
         hardware = new Hardware(hardwareMap, telemetry);
-
         tuner = new Tuner(titles, values, gamepad1, telemetry);
-
-        telemetry.update(); //needs to be run every time you send something
     }
 
     @Override

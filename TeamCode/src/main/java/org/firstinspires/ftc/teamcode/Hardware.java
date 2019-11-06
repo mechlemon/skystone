@@ -73,18 +73,18 @@ public class Hardware {
     }
 
     public void clampStone(){
-        grabLeft.setPosition(0.2);
-        grabRight.setPosition(0.55);
+        grabLeft.setPosition(0);
+        grabRight.setPosition(1);
     }
 
     public void dropStone(){
-        grabLeft.setPosition(0.45);
+        grabLeft.setPosition(0.7);
         grabRight.setPosition(0.3);
     }
 
     public void openClaw(){
-        grabLeft.setPosition(0.6);
-        grabRight.setPosition(0.15);
+        grabLeft.setPosition(1);
+        grabRight.setPosition(0);
     }
 
 
@@ -126,7 +126,7 @@ public class Hardware {
 
     public void steadyForward(double magnitude){
         double error = imu.getHeading();
-        double turnpower = (1/90.0)*error + Math.copySign(0.15, error);
+        double turnpower = (1/90.0)*error + Math.copySign(0.1, error);
 
         drivetrain.setleftPower(magnitude + turnpower);
         drivetrain.setrightPower(magnitude - turnpower);
@@ -134,7 +134,7 @@ public class Hardware {
 
     public void steadyLeft(double magnitude){
         double error = imu.getHeading();
-        double turnpower = (1/90.0)*error + Math.copySign(0.15, error);
+        double turnpower = (1/90.0)*error + Math.copySign(0.1, error);
 
         drivetrain.setrightPower(magnitude);
         drivetrain.setleftPower(turnpower);
@@ -143,9 +143,9 @@ public class Hardware {
 
     public void steadyTranslation(double magnitudeX, double magnitudeY){
         double error = imu.getHeading();
-        double turnpower = (1/90.0)*error + Math.copySign(0.15, error);
+        double turnpower = (1/90.0)*error + Math.copySign(0.1, error);
 
-        drivetrain.setrightPower(magnitudeX);
+        drivetrain.setstrafePower(magnitudeX);
         drivetrain.setleftPower(magnitudeY + turnpower);
         drivetrain.setrightPower(magnitudeY - turnpower);
     }
