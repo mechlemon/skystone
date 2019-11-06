@@ -43,10 +43,14 @@ public class SkyStoneGrab3 extends LinearOpMode {
         FORWARD2GRAB,
         GRABSTONE,
         LIFTSTONE,
-        BACK2WALL,
+        BACK2WALL1,
         RIGHT2FOUNDATION,
+        BACK2WALL2,
         FORWARD2FOUNDATION,
         GRABFOUNDATION,
+        BACK2WALL3,
+        RELEASEFOUNDATION,
+        PARK,
 
 
         DONE,
@@ -54,8 +58,6 @@ public class SkyStoneGrab3 extends LinearOpMode {
     }
 
     Hardware hardware;
-    Status status;
-    int scan_position = 0;
 
     @Override public void runOpMode() {
         hardware = new Hardware(hardwareMap, telemetry);
@@ -63,14 +65,15 @@ public class SkyStoneGrab3 extends LinearOpMode {
 
         waitForStart();
 
-        status = Status.FORWARD2SCAN;
+        Status status = Status.FORWARD2SCAN;
         Timer timer = new Timer();
+        hardware.resetEncoders();
 
         while(!isStopRequested()){
 
              if(status == Status.FORWARD2SCAN) {
                  if (1100 > Calculate.average(hardware.getLeftDrivePos(), hardware.getRightDrivePos())) {
-                     hardware.steadyForward(0.4);
+                     hardware.drivetrain.forward(0.4);
                      hardware.dropStone();
                  } else {
                      hardware.drivetrain.setPowers(0,0,0);
@@ -80,34 +83,21 @@ public class SkyStoneGrab3 extends LinearOpMode {
              }
 
             if(status == Status.SCANNING) {
-                if(scan_position == 0){
-                    if(hardware.vuforiaPhone.getSkystoneTranslation() != null){
-                        status = Status.FORWARD2GRAB;
+                if(1 < timer.getElapsed()) {
+                    if (hardware.vuforiaPhone.getSkystoneTranslation() != null) {
+                        double skystoneX = hardware.vuforiaPhone.getSkystoneTranslation().get(1) - 40;
+                        hardware.drivetrain.right(0.01 * skystoneX + Math.copySign(0.15, skystoneX));
+                        if (5 > Math.abs(skystoneX)) {
+                            hardware.drivetrain.setPowers(0,0,0);
+                            hardware.resetEncoders();
+                            status = Status.FORWARD2GRAB;
+                        }
+                        telemetry.addData("targetPos", skystoneX);
+                    } else {
+                        hardware.drivetrain.left(0.18);
                     }
-                    if(1 < timer.getElapsed()){
-                        timer.reset();
-                        scan_position++;
-                    }
-                }
-                if(scan_position == 1){
-                    if(hardware.vuforiaPhone.getSkystoneTranslation() != null){
-                        status = Status.FORWARD2GRAB;
-                    }
-                    if(1 < timer.getElapsed()){
-                        scan_position++;
-                    }
-                }
-                if(scan_position == 2){
-                    scan_position++;
-                }
-                if(scan_position == 3){
-                    scan_position++;
-                }
-                if(scan_position == 4){
-                    scan_position++;
-                }
-                if(scan_position == 5){
-                    status = Status.FORWARD2GRAB;
+                }else{
+                    hardware.drivetrain.setPowers(0,0,0);
                 }
             }
 
@@ -136,27 +126,79 @@ public class SkyStoneGrab3 extends LinearOpMode {
                 } else {
                     hardware.armApplyAntigrav(0);
                     hardware.drivetrain.setPowers(0,0,0);
-                    status = Status.BACK2WALL;
+                    status = Status.BACK2WALL1;
                     timer.reset();
                 }
             }
 
-            if(status == Status.BACK2WALL) {
+            if(status == Status.BACK2WALL1) {
                 hardware.drivetrain.back(0.7);
                 if(1 < timer.getElapsed()){
                     hardware.drivetrain.setPowers(0,0,0);
-                    status = Status.RIGHT2FOUNDATION;
                     timer.reset();
+                    status = Status.RIGHT2FOUNDATION;
                 }
             }
 
             if(status == Status.RIGHT2FOUNDATION) {
-                hardware.drivetrain.right(1);
+                hardware.steadyLeft(-1);
                 if(2 < timer.getElapsed()){
                     hardware.drivetrain.setPowers(0,0,0);
+                    hardware.resetEncoders();
+                    timer.reset();
+                    status = Status.BACK2WALL2;
+                }
+            }
+
+            if(status == Status.BACK2WALL2) {
+                hardware.drivetrain.back(0.7);
+                if(0.5 < timer.getElapsed()){
+                    hardware.drivetrain.setPowers(0,0,0);
+                    timer.reset();
+                    status = Status.FORWARD2FOUNDATION;
+                }
+            }
+
+            if(status == Status.FORWARD2FOUNDATION) {
+                if(200 > Calculate.average(hardware.getLeftDrivePos(), hardware.getRightDrivePos())) {
+                    hardware.steadyForward(0.3);
+                } else{
+                    hardware.drivetrain.setPowers(0,0,0);
+                    status = Status.GRABFOUNDATION;
+                }
+            }
+
+            if(status == Status.GRABFOUNDATION){
+                hardware.clampFoundation();
+                hardware.dropStone();
+                timer.reset();
+                status = Status.BACK2WALL3;
+            }
+
+            if(status == Status.BACK2WALL3){
+                hardware.drivetrain.back(0.7);
+                if(1 < timer.getElapsed()){
+                    hardware.drivetrain.setPowers(0,0,0);
+                    timer.reset();
+                    status = Status.RELEASEFOUNDATION;
+                }
+            }
+
+            if(status == Status.RELEASEFOUNDATION){
+                hardware.releaseFoundation();
+                timer.reset();
+                status = Status.PARK;
+            }
+
+            if(status == Status.PARK){
+                hardware.steadyLeft(0.7);
+                if(1.5 < timer.getElapsed()){
+                    hardware.drivetrain.setPowers(0,0,0);
+                    timer.reset();
                     status = Status.DONE;
                 }
             }
+
 
             if(status == Status.DONE) {
                 hardware.resetMotors();

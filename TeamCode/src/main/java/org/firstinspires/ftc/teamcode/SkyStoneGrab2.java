@@ -97,7 +97,7 @@ public class SkyStoneGrab2 extends LinearOpMode {
             }
 
             if(status == Status.FORWARD2GRAB) {
-                if (1950 > Calculate.average(hardware.drivetrain.leftMotor.getCurrentPosition(), hardware.drivetrain.rightMotor.getCurrentPosition())) {
+                if (2000 > Calculate.average(hardware.drivetrain.leftMotor.getCurrentPosition(), hardware.drivetrain.rightMotor.getCurrentPosition())) {
                     hardware.drivetrain.forward(0.35);
                 } else {
                     hardware.drivetrain.setPowers(0,0,0);

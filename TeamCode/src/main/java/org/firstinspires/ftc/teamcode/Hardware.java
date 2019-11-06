@@ -87,6 +87,11 @@ public class Hardware {
         grabRight.setPosition(0);
     }
 
+    public void setClawPos(double pos){
+        grabLeft.setPosition(1-pos);
+        grabRight.setPosition(pos);
+    }
+
 
 
     public void armApplyAntigrav(double power){
@@ -95,9 +100,14 @@ public class Hardware {
     }
 
 
-    public void clampFoundation(double grabPos){
-        grabFoundationLeft.setPosition(grabPos);
-        grabFoundationRight.setPosition(-grabPos);
+    public void clampFoundation(){
+        grabFoundationLeft.setPosition(-1);
+        grabFoundationRight.setPosition(1);
+    }
+
+    public void releaseFoundation(){
+        grabFoundationLeft.setPosition(1);
+        grabFoundationRight.setPosition(-1);
     }
 
     public void resetMotors(){

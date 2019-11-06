@@ -17,8 +17,8 @@ public class Teleop2 extends OpMode {
 
     private double grabPos = 0;
 
-    private String[] titles = new String[] {"forwardCoeff", "turnCoeff", "strafeCoeff", "elevatorCoeff", "armCoeff",  "left_servo" , "right_servo"}; //names of the tuner values
-    private double[] values = new double[] {     1        ,    0.7     ,     1        ,         1      ,    0.3    ,        0.5    ,      0.25    }; //default tuner values
+    private String[] titles = new String[] {"forwardCoeff", "turnCoeff", "strafeCoeff", "armCoeff",  "left_servo" , "right_servo"}; //names of the tuner values
+    private double[] values = new double[] {     1        ,    0.7     ,     1        ,    0.3    ,        0.5    ,      0.25    }; //default tuner values
 
     private Tuner tuner;
     private Hardware hardware;
@@ -40,9 +40,6 @@ public class Teleop2 extends OpMode {
         double strafeCoeff = tuner.get("strafeCoeff");
         double turnCoeff = tuner.get("turnCoeff");
         double armCoeff = tuner.get("armCoeff");
-        double elevatorCoeff = tuner.get("elevatorCoeff");
-        double left_servo_start = tuner.get("left_servo");
-        double right_servo_start = tuner.get("right_servo");
 
         //apply the constants to calculate values
         double forward = -gamepad1.left_stick_y * forwardCoeff; //joysticks usually returns negative for up
@@ -52,9 +49,9 @@ public class Teleop2 extends OpMode {
 
         if(Math.abs(turn) < 0.05){
             hardware.steadyTranslation(strafe, forward);
+        }else{
+            hardware.drivetrain.setPowers(forward + turn, forward - turn, strafe);
         }
-
-
 
 
         //servos
@@ -65,23 +62,18 @@ public class Teleop2 extends OpMode {
             grabPos -= 0.05;
         }
 
-        hardware.grabLeft.setPosition(left_servo_start - grabPos);
-        hardware.grabRight.setPosition(right_servo_start + grabPos);
+        hardware.setClawPos(grabPos);
 
-        if(gamepad2.dpad_up){ hardware.elevator.setPower(elevatorCoeff); }
-        else if(gamepad2.dpad_down){ hardware.elevator.setPower(-elevatorCoeff); }
+        if(gamepad2.dpad_up){ hardware.elevator.setPower(1); }
+        else if(gamepad2.dpad_down){ hardware.elevator.setPower(-1); }
         else{ hardware.elevator.setPower(0); }
-
 
         hardware.armApplyAntigrav(armCoeff * -gamepad2.left_stick_y);
 
-
+        hardware.drivetrain.execute();
         telemetry.addData("arm pos", hardware.arm.getCurrentPosition());
         telemetry.addData("L pos", hardware.getLeftDrivePos());
         telemetry.addData("R pos", hardware.getRightDrivePos());
-
-        telemetry.addData("grabLeft pos", hardware.grabLeft.getPosition()); //the encoder position readings
-        telemetry.addData("grabRight pos", hardware.grabRight.getPosition());
         telemetry.update();
 
     }
