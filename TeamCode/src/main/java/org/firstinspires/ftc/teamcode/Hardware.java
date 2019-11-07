@@ -63,9 +63,49 @@ public class Hardware {
 
         imu = new IMU(hardwareMap.get(BNO055IMU.class,"imu"));
         imu.setHeadingAxis(IMU.HeadingAxis.YAW);
+
         imu.initialize();
 
         vuforiaPhone = new VuforiaPhone(hardwareMap, telemetry);
+
+
+        telemetry.addData("Status", "Initialized");
+        telemetry.update(); //needs to be run every time you send something
+    }
+
+    public Hardware(HardwareMap hardwareMap, Telemetry telemetry, boolean vuforia){
+        drivetrain = new Hdrive(hardwareMap.get(DcMotor.class, "1-0"),
+                hardwareMap.get(DcMotor.class, "1-1"),
+                hardwareMap.get(DcMotor.class, "1-2"),
+                hardwareMap.get(DcMotor.class, "1-3"));
+        drivetrain.leftMotor.setDirection(DcMotorSimple.Direction.REVERSE);
+        drivetrain.strafeMotor1.setDirection(DcMotorSimple.Direction.REVERSE);
+        drivetrain.strafeMotor2.setDirection(DcMotorSimple.Direction.REVERSE);
+
+
+        elevator = hardwareMap.get(DcMotor.class, "2-0");
+        arm = hardwareMap.get(DcMotor.class, "2-1");
+
+        // stone intake
+        grabLeft = hardwareMap.get(Servo.class, "grabLeft");
+        grabRight = hardwareMap.get(Servo.class, "grabRight");
+        // foundation grabber
+        grabFoundationLeft = hardwareMap.get(Servo.class, "grabFoundationLeft");
+        grabFoundationRight = hardwareMap.get(Servo.class, "grabFoundationRight");
+
+        left_servo_start = grabLeft.getPosition();
+        right_servo_start = grabRight.getPosition();
+
+        armPosStart = arm.getCurrentPosition();
+
+        imu = new IMU(hardwareMap.get(BNO055IMU.class,"imu"));
+        imu.setHeadingAxis(IMU.HeadingAxis.YAW);
+
+        imu.initialize();
+
+        if(vuforia){
+            vuforiaPhone = new VuforiaPhone(hardwareMap, telemetry);
+        }
 
 
         telemetry.addData("Status", "Initialized");
@@ -78,7 +118,7 @@ public class Hardware {
     }
 
     public void dropStone(){
-        grabLeft.setPosition(0.7);
+        grabLeft.setPosition(0.75);
         grabRight.setPosition(0.3);
     }
 
@@ -95,8 +135,7 @@ public class Hardware {
 
 
     public void armApplyAntigrav(double power){
-        double armPos = (arm.getCurrentPosition() - armPosStart) * (16/24.0) * (360/1440.0) - 80;
-        arm.setPower(power + 0.15 * Math.cos(Math.toRadians(armPos)));
+        arm.setPower(power + 0.15 * Math.cos(Math.toRadians(getArmAngle())));
     }
 
 
@@ -133,27 +172,26 @@ public class Hardware {
         return (drivetrain.strafeMotor1.getCurrentPosition() - strafe1_drive_zero) * DRIVE_GEAR_RATIO * WHEEL_CIRCUMFERENCE * (1/TICKS_PER_REV);
     }
 
+    public double getArmAngle(){
+        return (arm.getCurrentPosition() - armPosStart) * (16/24.0) * (360/1440.0) - 80;
 
-    public void steadyForward(double magnitude){
-        double error = imu.getHeading();
-        double turnpower = (1/90.0)*error + Math.copySign(0.1, error);
-
-        drivetrain.setleftPower(magnitude + turnpower);
-        drivetrain.setrightPower(magnitude - turnpower);
     }
 
-    public void steadyLeft(double magnitude){
-        double error = imu.getHeading();
-        double turnpower = (1/90.0)*error + Math.copySign(0.1, error);
-
-        drivetrain.setrightPower(magnitude);
-        drivetrain.setleftPower(turnpower);
-        drivetrain.setrightPower(-turnpower);
-    }
 
     public void steadyTranslation(double magnitudeX, double magnitudeY){
-        double error = imu.getHeading();
-        double turnpower = (1/90.0)*error + Math.copySign(0.1, error);
+        double error = Math.sin(Math.toRadians(imu.getHeading()));
+        double turnpower = error + Math.copySign(0.1, error);
+
+        drivetrain.setstrafePower(magnitudeX);
+        drivetrain.setleftPower(magnitudeY + turnpower);
+        drivetrain.setrightPower(magnitudeY - turnpower);
+    }
+
+    Calculate.PIDF steadyPIDF = new Calculate.PIDF(1, 0.01, 0.01, 0.1, 0);
+
+    public void steadyTranslationPIDF(double magnitudeX, double magnitudeY){
+        double error = Math.sin(Math.toRadians(imu.getHeading()));
+        double turnpower = steadyPIDF.loop(error,0);
 
         drivetrain.setstrafePower(magnitudeX);
         drivetrain.setleftPower(magnitudeY + turnpower);

@@ -69,11 +69,18 @@ public class Tester extends LinearOpMode {
 
             hardware.steadyTranslation(-gamepad1.left_stick_x, -gamepad1.left_stick_y);
 
-            hardware.drivetrain.execute();
+            if(gamepad1.dpad_right){
+                hardware.imu.resetHeading();
+            }
+
+//            hardware.drivetrain.execute();
             telemetry.addData("heading", hardware.imu.getOrientation());
             telemetry.addData("Ldrive", hardware.getLeftDrivePos());
             telemetry.addData("Rdrive", hardware.getRightDrivePos());
-            telemetry.addData("S1drive", hardware.getStrafeDrive1Pos());
+            telemetry.addData("armpos", hardware.getArmAngle());
+
+            telemetry.addData("armpos", hardware.getArmAngle());
+            telemetry.addData("armpos", hardware.getArmAngle());
             telemetry.update();
         }
     }

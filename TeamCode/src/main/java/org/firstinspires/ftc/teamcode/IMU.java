@@ -54,6 +54,7 @@ public class IMU {
         // Make sure it is configured on robot as IC2 port 0 "Expansion Hub Internal IMU" and named "imu"
         //applies those parameters to imu
         imu.initialize(parameters);
+        resetHeading();
     }
 
 

@@ -100,6 +100,74 @@ public class Calculate {
         return AngleUnit.DEGREES.normalize(degrees);
     }
 
+//CONTROL THEORY
+    public static class PIDF {
+        //constants
+        double kP, kI, kD, kF = 0;
+        double tolerance;
+
+        double currentValue, target, error, lastError;
+        double P, I, D, F, power = 0;
+
+        Boolean initialized = false;
+        Boolean inTolerance = false;
+
+
+        public PIDF(double kP, double kI, double kD, double kF, double tolerance){
+            this.kP = kP;
+            this.kI = kI;
+            this.kD = kD;
+            this.kF = kF;
+            this.tolerance = tolerance;
+        }
+
+        public double loop(double currentValue, double target){
+            this.currentValue = currentValue;
+            this.target = target;
+            if(!initialized){
+                lastError = this.target;
+                initialized = true;
+            }
+            error = this.target - this.currentValue;
+
+
+            if (Math.abs(error) < tolerance){
+                I = 0;
+                inTolerance = true;
+            }else{
+                inTolerance = false;
+            }
+
+            P = kP * error;
+            I = I + (kI*error);
+            D = kD * (lastError - error);
+            F = Math.copySign(kF, error);
+
+            power = P + I + D + F;
+            return power;
+        }
+
+        public Boolean inTolerance(){
+            return inTolerance;
+        }
+
+        public double getPower(){
+            return power;
+        }
+
+        public double getError(){
+            return error;
+        }
+
+        public void resetPID(){
+            P=0;
+            I=0;
+            D=0;
+            F=0;
+        }
+
+}
+
 // RANDOM MATH
     public static double average(double a, double b){
         return 0.5 * (a + b);

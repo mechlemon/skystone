@@ -43,8 +43,8 @@ public class Teleop2 extends OpMode {
 
         //apply the constants to calculate values
         double forward = -gamepad1.left_stick_y * forwardCoeff; //joysticks usually returns negative for up
-        double strafe = gamepad1.left_stick_x * strafeCoeff; //I think right is positive and left is negative
-        double turn = -gamepad1.right_stick_x * turnCoeff;
+        double strafe = -gamepad1.left_stick_x * strafeCoeff; //I think right is positive and left is negative
+        double turn = gamepad1.right_stick_x * turnCoeff;
 
 
         if(Math.abs(turn) < 0.05){
