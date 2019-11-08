@@ -63,18 +63,20 @@ import static org.firstinspires.ftc.robotcore.external.navigation.VuforiaLocaliz
 public class Tester extends LinearOpMode {
 
     public void runOpMode() {
-        Hardware hardware = new Hardware(hardwareMap, telemetry);
+        Hardware hardware = new Hardware(hardwareMap, telemetry, false);
         waitForStart();
+
+
+
         while(!isStopRequested()){
 
-            hardware.steadyTranslation(-gamepad1.left_stick_x, -gamepad1.left_stick_y);
 
             if(gamepad1.dpad_right){
                 hardware.imu.resetHeading();
             }
 
 //            hardware.drivetrain.execute();
-            telemetry.addData("heading", hardware.imu.getOrientation());
+            telemetry.addData("heading", hardware.imu.getHeading());
             telemetry.addData("Ldrive", hardware.getLeftDrivePos());
             telemetry.addData("Rdrive", hardware.getRightDrivePos());
             telemetry.addData("armpos", hardware.getArmAngle());

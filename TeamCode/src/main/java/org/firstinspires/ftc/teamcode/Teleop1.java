@@ -31,8 +31,6 @@ public class Teleop1 extends OpMode {
     private Servo grabFoundationLeft = null;
     private Servo grabFoundationRight = null;
 
-    private double grabStartPosL = -0.5;
-    private double grabStartPosR = -0.5;
     private double grabPos = 0;
 
     private double armPosStart = 0;
@@ -45,7 +43,7 @@ public class Teleop1 extends OpMode {
      *  meant to be temporary in order to test out constants.
      */
     private String[] titles = new String[] {"forwardCoeff", "turnCoeff", "strafeCoeff", "elevatorCoeff", "armCoeff", "antigrav" , "left_servo" , "right_servo"}; //names of the tuner values
-    private double[] values = new double[] {     1        ,    0.7     ,     1      ,         1      ,    0.3    ,     0.15   ,      0.5     ,       0.25    }; //default tuner values
+    private double[] values = new double[] {     1        ,    0.7     ,     1      ,         1      ,    0.3    ,     0.15   ,      0.5     ,       0.4    }; //default tuner values
 
     private Tuner tuner;
 
@@ -81,9 +79,6 @@ public class Teleop1 extends OpMode {
         grabFoundationLeft = hardwareMap.get(Servo.class, "grabFoundationLeft");
         grabFoundationRight = hardwareMap.get(Servo.class, "grabFoundationRight");
 
-
-        grabStartPosL = grabLeft.getPosition();
-        grabStartPosR = grabRight.getPosition();
 
         armPosStart = arm.getCurrentPosition();
 
@@ -132,11 +127,11 @@ public class Teleop1 extends OpMode {
             grabPos -= 0.05;
         }
 
-        if(gamepad2.a){
+        if(gamepad2.b){
             grabFoundationLeft.setPosition(1);
             grabFoundationRight.setPosition(-1);
         }
-        if(gamepad2.b){
+        if(gamepad2.a){
             grabFoundationLeft.setPosition(-1);
             grabFoundationRight.setPosition(1);
         }

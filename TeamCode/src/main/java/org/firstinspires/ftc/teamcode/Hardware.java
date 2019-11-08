@@ -118,8 +118,8 @@ public class Hardware {
     }
 
     public void dropStone(){
-        grabLeft.setPosition(0.75);
-        grabRight.setPosition(0.3);
+        grabLeft.setPosition(0.78);
+        grabRight.setPosition(0.2);
     }
 
     public void openClaw(){
@@ -179,7 +179,7 @@ public class Hardware {
 
 
     public void steadyTranslation(double magnitudeX, double magnitudeY){
-        double error = Math.sin(Math.toRadians(imu.getHeading()));
+        double error = imu.getHeading();
         double turnpower = error + Math.copySign(0.1, error);
 
         drivetrain.setstrafePower(magnitudeX);
@@ -187,15 +187,26 @@ public class Hardware {
         drivetrain.setrightPower(magnitudeY - turnpower);
     }
 
-    Calculate.PIDF steadyPIDF = new Calculate.PIDF(1, 0.01, 0.01, 0.1, 0);
+    Calculate.PIDF steadyPIDF = new Calculate.PIDF((1/90.0), 0.001, 0.01, 0.1, 0);
 
-    public void steadyTranslationPIDF(double magnitudeX, double magnitudeY){
-        double error = Math.sin(Math.toRadians(imu.getHeading()));
+    public double steadyTranslationPIDF(double magnitudeX, double magnitudeY){
+        double error = -imu.getHeading();
         double turnpower = steadyPIDF.loop(error,0);
 
         drivetrain.setstrafePower(magnitudeX);
         drivetrain.setleftPower(magnitudeY + turnpower);
         drivetrain.setrightPower(magnitudeY - turnpower);
+        return steadyPIDF.error;
+    }
+
+    public double steadyTranslationPIDF(double magnitudeX, double magnitudeY, double angle){
+        double error = imu.getHeading();
+        double turnpower = steadyPIDF.loop(error,angle);
+
+        drivetrain.setstrafePower(magnitudeX);
+        drivetrain.setleftPower(magnitudeY - turnpower);
+        drivetrain.setrightPower(magnitudeY + turnpower);
+        return steadyPIDF.error;
     }
 
 

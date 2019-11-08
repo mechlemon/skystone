@@ -31,14 +31,13 @@ package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.Disabled;
-import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 
 
-@Autonomous(name="SkyStoneGrabRed4", group ="comp")
+@Autonomous(name="SkyStoneGrabRed5", group ="comp")
 @Disabled
 
-public class SkyStoneGrab4 extends OpMode {
+public class SkyStoneGrab5 extends OpMode {
 
     public enum Status{
         FORWARD2SCAN,

@@ -60,9 +60,9 @@ public class IMU {
 
     public double getHeading() {
         angles = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES);
-        if(headingAxis == HeadingAxis.ROLL) return angles.thirdAngle - headingAngleOffset;
-        if(headingAxis == HeadingAxis.PITCH) return angles.secondAngle - headingAngleOffset;
-        if(headingAxis == HeadingAxis.YAW) return angles.firstAngle - headingAngleOffset;
+        if(headingAxis == HeadingAxis.ROLL) return Calculate.normalizeAngle(angles.thirdAngle - headingAngleOffset);
+        if(headingAxis == HeadingAxis.PITCH) return Calculate.normalizeAngle(angles.secondAngle - headingAngleOffset);
+        if(headingAxis == HeadingAxis.YAW) return Calculate.normalizeAngle(angles.firstAngle - headingAngleOffset);
         return 0;
     }
 
@@ -86,8 +86,7 @@ public class IMU {
 
 
     public void resetHeading() {
-        angles = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES);
-        headingAngleOffset = angles.firstAngle;
+        headingAngleOffset = getHeading();
     }
 
 

@@ -166,6 +166,13 @@ public class Calculate {
             F=0;
         }
 
+        public void setConstants(double kP, double kI, double kD, double kF, double tolerance){
+            this.kP = kP;
+            this.kI = kI;
+            this.kD = kD;
+            this.kF = kF;
+            this.tolerance = tolerance;
+        }
 }
 
 // RANDOM MATH

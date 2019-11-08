@@ -136,7 +136,7 @@ public class SkyStoneGrab2 extends LinearOpMode {
             }
 
             if(status == Status.RIGHT2FOUNDATION) {
-                hardware.steadyLeft(-0.6);
+                hardware.drivetrain.left(-0.6);
                 if(3 < timer.getElapsed()){
                     hardware.drivetrain.setPowers(0,0,0);
                     status = Status.DONE;
