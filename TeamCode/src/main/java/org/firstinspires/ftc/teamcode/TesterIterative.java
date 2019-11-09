@@ -43,7 +43,7 @@ public class TesterIterative extends OpMode {
     int turn = 0;
 
     String[] titles = new String[] {"kP", "kI", "kD", "kF", "tolerance"}; //names of the tuner values
-    double[] values = new double[] {(1/90.0), 0.001, 0.01, 0.1, 5}; //default tuner values
+    double[] values = new double[] {(1/90.0), 0.0, 0.0, 0.1, 0}; //default tuner values
     Tuner tuner;
 
     Calculate.PIDF pid = new Calculate.PIDF(0,0,0,0,0);

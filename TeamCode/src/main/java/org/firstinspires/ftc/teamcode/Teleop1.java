@@ -151,8 +151,8 @@ public class Teleop1 extends OpMode {
         telemetry.addData("L pos",lDriveMotor.getCurrentPosition());
         telemetry.addData("R pos",rDriveMotor.getCurrentPosition());
 
-        telemetry.addData("grabLeft pos",grabLeft.getPosition()); //the encoder position readings
-        telemetry.addData("grabRight pos",grabRight.getPosition());
+        telemetry.addData("grabLeft pos",grabFoundationLeft.getPosition()); //the encoder position readings
+        telemetry.addData("grabRight pos",grabFoundationRight.getPosition());
         telemetry.update();
 
     }

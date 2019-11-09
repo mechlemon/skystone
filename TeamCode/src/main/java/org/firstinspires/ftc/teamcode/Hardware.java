@@ -140,8 +140,8 @@ public class Hardware {
 
 
     public void clampFoundation(){
-        grabFoundationLeft.setPosition(-1);
-        grabFoundationRight.setPosition(1);
+        grabFoundationLeft.setPosition(-0.7);
+        grabFoundationRight.setPosition(0.7);
     }
 
     public void releaseFoundation(){
