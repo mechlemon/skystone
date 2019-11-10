@@ -62,7 +62,7 @@ import static org.firstinspires.ftc.robotcore.external.navigation.VuforiaLocaliz
 
 
 @Autonomous(name="SkyStoneGrabRed", group ="comp")
-
+@Disabled
 public class SkyStoneGrab extends LinearOpMode {
 
     private Hdrive drivetrain;

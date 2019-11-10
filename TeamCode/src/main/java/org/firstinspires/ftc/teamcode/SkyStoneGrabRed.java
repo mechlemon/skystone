@@ -33,9 +33,9 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
 
-@Autonomous(name="SkyStoneGrabRed3", group ="comp")
+@Autonomous(name="SkyStoneGrabRed", group ="comp")
 
-public class SkyStoneGrab3 extends LinearOpMode {
+public class SkyStoneGrabRed extends LinearOpMode {
 
     public enum Status{
         FORWARD2SCAN,
@@ -83,7 +83,7 @@ public class SkyStoneGrab3 extends LinearOpMode {
         while(!isStopRequested()){
 
              if(status == Status.FORWARD2SCAN) {
-                 if (15 > Calculate.average(hardware.getLeftDrivePos(), hardware.getRightDrivePos())) {
+                 if (13.5 > Calculate.average(hardware.getLeftDrivePos(), hardware.getRightDrivePos())) {
                      hardware.drivetrain.forward(0.4);
                      hardware.dropStone();
                  } else {
@@ -98,16 +98,16 @@ public class SkyStoneGrab3 extends LinearOpMode {
                      hardware.drivetrain.setPowers(0, 0, 0);
 
                      if (hardware.vuforiaPhone.getSkystoneTranslation() != null) {
-                         double skystoneX = hardware.vuforiaPhone.getSkystoneTranslation().get(1) + 10;
+                         double skystoneX = hardware.vuforiaPhone.getSkystoneTranslation().get(1) + 20;
                          hardware.drivetrain.right(0.004 * skystoneX + Math.copySign(0.15, skystoneX));
-                         if (6 > Math.abs(skystoneX)) {
+                         if (4 > Math.abs(skystoneX)) {
                              hardware.drivetrain.setPowers(0,0,0);
                              hardware.resetEncoders();
                              timer.reset();
                              fordist = 50;
                              status = Status.FORWARD2GRAB;
                          }
-                     }else if(timer.getElapsed() > 2.5) {
+                     }else if(timer.getElapsed() > 2) {
                          hardware.drivetrain.left(0.40);
                          status = Status.SCAN2;
                          hardware.resetEncoders();
@@ -123,15 +123,15 @@ public class SkyStoneGrab3 extends LinearOpMode {
 
                      if (hardware.vuforiaPhone.getSkystoneTranslation() != null) {
                          double skystoneX = hardware.vuforiaPhone.getSkystoneTranslation().get(1) + 10;
-                         hardware.drivetrain.right(0.004 * skystoneX + Math.copySign(0.1, skystoneX));
+                         hardware.drivetrain.right(0.004 * skystoneX + Math.copySign(0.15, skystoneX));
                          if (6 > Math.abs(skystoneX)) {
                              hardware.drivetrain.setPowers(0,0,0);
                              hardware.resetEncoders();
                              timer.reset();
-                             fordist = 53;
+                             fordist = 56;
                              status = Status.FORWARD2GRAB;
                          }
-                     }else if(timer.getElapsed() > 2.5) {
+                     }else if(timer.getElapsed() > 2) {
                          hardware.drivetrain.left(0.40);
                          status = Status.SCAN3;
                          hardware.resetEncoders();
@@ -147,18 +147,17 @@ public class SkyStoneGrab3 extends LinearOpMode {
 
                      if (hardware.vuforiaPhone.getSkystoneTranslation() != null) {
                          double skystoneX = hardware.vuforiaPhone.getSkystoneTranslation().get(1) + 10;
-                         hardware.drivetrain.right(0.004 * skystoneX + Math.copySign(0.1, skystoneX));
+                         hardware.drivetrain.right(0.004 * skystoneX + Math.copySign(0.15, skystoneX));
                          if (6 > Math.abs(skystoneX)) {
                              hardware.drivetrain.setPowers(0,0,0);
                              hardware.resetEncoders();
                              timer.reset();
-                             fordist = 58;
+                             fordist = 62;
                              status = Status.FORWARD2GRAB;
                          }
-                     }else if(timer.getElapsed() > 2.5) {
+                     }else if(timer.getElapsed() > 2) {
                              status = Status.FORWARD2GRAB;
-                             hardware.resetEncoders();
-                                fordist = 58;
+                             hardware.resetEncoders();fordist = 58;
 
                          timer.reset();
 
@@ -332,10 +331,16 @@ public class SkyStoneGrab3 extends LinearOpMode {
              }
 
              if(status == Status.DONE){
-                 if(timer.getElapsed() < 1.2){
+                 if(-30 < Calculate.average(hardware.getLeftDrivePos(), hardware.getRightDrivePos())){
                      hardware.drivetrain.back(1);
+                     hardware.elevator.setPower(-0.7);
+                     hardware.arm.setPower(-0.1);
                  }else{
                      hardware.drivetrain.setPowers(0,0,0);
+                     hardware.elevator.setPower(0);
+                     hardware.arm.setPower(0);
+
+
                  }
              }
 
