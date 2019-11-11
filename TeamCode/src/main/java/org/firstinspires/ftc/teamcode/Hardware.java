@@ -118,8 +118,8 @@ public class Hardware {
     }
 
     public void dropStone(){
-        grabLeft.setPosition(0.78);
-        grabRight.setPosition(0.2);
+        grabLeft.setPosition(0.70);
+        grabRight.setPosition(0.4);
     }
 
     public void openClaw(){
@@ -140,13 +140,18 @@ public class Hardware {
 
 
     public void clampFoundation(){
-        grabFoundationLeft.setPosition(-0.7);
+        grabFoundationLeft.setPosition(0.278);
         grabFoundationRight.setPosition(0.7);
     }
 
     public void releaseFoundation(){
         grabFoundationLeft.setPosition(1);
-        grabFoundationRight.setPosition(-1);
+        grabFoundationRight.setPosition(0.1);
+    }
+
+    public void moveServosFoundation(double left, double right){
+        grabFoundationLeft.setPosition(left);
+        grabFoundationRight.setPosition(right);
     }
 
     public void resetMotors(){

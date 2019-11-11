@@ -98,7 +98,7 @@ public class SkyStoneGrabRed extends LinearOpMode {
                      hardware.drivetrain.setPowers(0, 0, 0);
 
                      if (hardware.vuforiaPhone.getSkystoneTranslation() != null) {
-                         double skystoneX = hardware.vuforiaPhone.getSkystoneTranslation().get(1) + 20;
+                         double skystoneX = hardware.vuforiaPhone.getSkystoneTranslation().get(1) + 10;
                          hardware.drivetrain.right(0.004 * skystoneX + Math.copySign(0.15, skystoneX));
                          if (4 > Math.abs(skystoneX)) {
                              hardware.drivetrain.setPowers(0,0,0);
@@ -122,7 +122,7 @@ public class SkyStoneGrabRed extends LinearOpMode {
                      hardware.drivetrain.setPowers(0, 0, 0);
 
                      if (hardware.vuforiaPhone.getSkystoneTranslation() != null) {
-                         double skystoneX = hardware.vuforiaPhone.getSkystoneTranslation().get(1) + 10;
+                         double skystoneX = hardware.vuforiaPhone.getSkystoneTranslation().get(1);
                          hardware.drivetrain.right(0.004 * skystoneX + Math.copySign(0.15, skystoneX));
                          if (6 > Math.abs(skystoneX)) {
                              hardware.drivetrain.setPowers(0,0,0);
@@ -146,7 +146,7 @@ public class SkyStoneGrabRed extends LinearOpMode {
                      hardware.drivetrain.setPowers(0, 0, 0);
 
                      if (hardware.vuforiaPhone.getSkystoneTranslation() != null) {
-                         double skystoneX = hardware.vuforiaPhone.getSkystoneTranslation().get(1) + 10;
+                         double skystoneX = hardware.vuforiaPhone.getSkystoneTranslation().get(1);
                          hardware.drivetrain.right(0.004 * skystoneX + Math.copySign(0.15, skystoneX));
                          if (6 > Math.abs(skystoneX)) {
                              hardware.drivetrain.setPowers(0,0,0);
@@ -168,7 +168,7 @@ public class SkyStoneGrabRed extends LinearOpMode {
              }
 
             else if(status == Status.FORWARD2GRAB) {
-                if (11 > Calculate.average(hardware.getLeftDrivePos(), hardware.getRightDrivePos())) {
+                if (15 > Calculate.average(hardware.getLeftDrivePos(), hardware.getRightDrivePos())) {
                     hardware.drivetrain.forward(0.35);
                 } else {
                     hardware.drivetrain.setPowers(0,0,0);
@@ -210,7 +210,7 @@ public class SkyStoneGrabRed extends LinearOpMode {
             }
 
             else if(status == Status.TURN2FOUNDATION1){
-                if(-75 < hardware.imu.getHeading()){
+                if(-70 < hardware.imu.getHeading()){
                     hardware.drivetrain.setPowers(0.5, -0.5, 0);
                 }else{
                     hardware.drivetrain.setPowers(0,0,0);
@@ -249,7 +249,7 @@ public class SkyStoneGrabRed extends LinearOpMode {
 
 
              else if(status == Status.FORWARD2FOUNDATION2) {
-                 if (10 > Calculate.average(hardware.getLeftDrivePos(), hardware.getRightDrivePos())) {
+                 if (18 > Calculate.average(hardware.getLeftDrivePos(), hardware.getRightDrivePos())) {
                      hardware.drivetrain.forward(0.7);
                  } else {
                      hardware.drivetrain.setPowers(0,0,0);
@@ -291,7 +291,7 @@ public class SkyStoneGrabRed extends LinearOpMode {
              else if(status == Status.BACK2){
                  if(timer.getElapsed() > 1){
                      hardware.drivetrain.setPowers(-1, -1,0);
-                     if(2.5 < timer.getElapsed()){
+                     if(3 < timer.getElapsed()){
                          hardware.drivetrain.setPowers(0,0,0);
                          hardware.resetEncoders();
                          timer.reset();

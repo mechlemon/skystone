@@ -36,19 +36,16 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 
 @TeleOp(name="TesterIterative", group ="concept")
-@Disabled
 
 public class TesterIterative extends OpMode {
 
     Hardware hardware;
 
-    int turn = 0;
 
-    String[] titles = new String[] {"kP", "kI", "kD", "kF", "tolerance"}; //names of the tuner values
-    double[] values = new double[] {(1/90.0), 0.0, 0.0, 0.1, 0}; //default tuner values
+    String[] titles = new String[] {"left1", "right1", "left2", "right2"}; //names of the tuner values
+    double[] values = new double[] {0.278, 0.7, 1, 0.1}; //default tuner values
     Tuner tuner;
 
-    Calculate.PIDF pid = new Calculate.PIDF(0,0,0,0,0);
 
 
     public void init(){
@@ -59,46 +56,17 @@ public class TesterIterative extends OpMode {
     public void loop() {
 
         tuner.tune();
-        pid.setConstants(tuner.get("kP"),
-                         tuner.get("kI"),
-                         tuner.get("kD"),
-                         tuner.get("kF"),
-                         tuner.get("tolerance"));
 
         if(gamepad1.x){
-            hardware.imu.resetHeading();
+            hardware.moveServosFoundation(tuner.get("left1"), tuner.get("right1"));
         }
-        if(gamepad1.dpad_left){
-            turn = 1;
-        }
-        if(gamepad1.dpad_right){
-            turn = -1;
+        if(gamepad1.y){
+            hardware.moveServosFoundation(tuner.get("left2"),tuner.get("right2"));
         }
 
-        if(turn == 1){
-            pid.loop(hardware.imu.getHeading(), 90);
-            hardware.drivetrain.setPowers(-pid.getPower(), pid.getPower(), 0);
-        }
-
-        if(turn == -1){
-            pid.loop(hardware.imu.getHeading(), -90);
-            hardware.drivetrain.setPowers(pid.getPower(), -pid.getPower(), 0);        }
-
-        if(hardware.steadyPIDF.inTolerance()){
-            turn = 0;
-        }
-
-        if (turn == 0) {
-            hardware.drivetrain.setPowers(0,0,0);
-        }
 
 
         hardware.drivetrain.execute();
-        telemetry.addData("turn", turn);
-        telemetry.addData("heading", hardware.imu.getHeading());
-        telemetry.addData("Ldrive", hardware.getLeftDrivePos());
-        telemetry.addData("Rdrive", hardware.getRightDrivePos());
-        telemetry.addData("armpos", hardware.getArmAngle());
         telemetry.update();
 
     }

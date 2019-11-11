@@ -43,7 +43,7 @@ public class Teleop1 extends OpMode {
      *  meant to be temporary in order to test out constants.
      */
     private String[] titles = new String[] {"forwardCoeff", "turnCoeff", "strafeCoeff", "elevatorCoeff", "armCoeff", "antigrav" , "left_servo" , "right_servo"}; //names of the tuner values
-    private double[] values = new double[] {     1        ,    0.7     ,     1      ,         1      ,    0.3    ,     0.15   ,      0.5     ,       0.4    }; //default tuner values
+    private double[] values = new double[] {     1        ,    0.7     ,     1      ,         1      ,    0.3    ,     0.2   ,      0.688     ,       0.428    }; //default tuner values
 
     private Tuner tuner;
 
@@ -129,11 +129,11 @@ public class Teleop1 extends OpMode {
 
         if(gamepad2.b){
             grabFoundationLeft.setPosition(1);
-            grabFoundationRight.setPosition(-1);
+            grabFoundationRight.setPosition(0.1);
         }
         if(gamepad2.a){
-            grabFoundationLeft.setPosition(-1);
-            grabFoundationRight.setPosition(1);
+            grabFoundationLeft.setPosition(0.278);
+            grabFoundationRight.setPosition(0.7);
         }
 
         grabLeft.setPosition(left_servo_start - grabPos);

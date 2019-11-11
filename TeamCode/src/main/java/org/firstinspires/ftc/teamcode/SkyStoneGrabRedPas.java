@@ -33,9 +33,9 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
 
-@Autonomous(name="SkyStoneGrabBlue", group ="comp")
+@Autonomous(name="SkyStoneGrabRedPas", group ="comp")
 
-public class SkyStoneGrabBlue extends LinearOpMode {
+public class SkyStoneGrabRedPas extends LinearOpMode {
 
     public enum Status{
         FORWARD2SCAN,
@@ -48,19 +48,9 @@ public class SkyStoneGrabBlue extends LinearOpMode {
         BACK1,
         TURN2FOUNDATION1,
         FORWARD2FOUNDATION1,
-        TURN2FOUNDATION2,
-        ALIGN1,
-        ALIGN2,
-        FORWARD2FOUNDATION2,
-        DROPSTONE,
-        LIFTARM,
         BACK2,
-        MOVEFOUNDATION, // joystick both in
-        RELEASEFOUNDATION,
-        PARK,
+        DONE
 
-
-        DONE,
 
     }
 
@@ -70,7 +60,6 @@ public class SkyStoneGrabBlue extends LinearOpMode {
         hardware = new Hardware(hardwareMap, telemetry);
 
         double fordist = 60;
-        double turnangle = 50;
 
 
 
@@ -99,18 +88,17 @@ public class SkyStoneGrabBlue extends LinearOpMode {
                      hardware.drivetrain.setPowers(0, 0, 0);
 
                      if (hardware.vuforiaPhone.getSkystoneTranslation() != null) {
-                         double skystoneX = hardware.vuforiaPhone.getSkystoneTranslation().get(1) + 0;
+                         double skystoneX = hardware.vuforiaPhone.getSkystoneTranslation().get(1) + 5;
                          hardware.drivetrain.right(0.004 * skystoneX + Math.copySign(0.15, skystoneX));
                          if (4 > Math.abs(skystoneX)) {
                              hardware.drivetrain.setPowers(0,0,0);
                              hardware.resetEncoders();
                              timer.reset();
                              fordist = 50;
-                             turnangle = 50;
                              status = Status.FORWARD2GRAB;
                          }
                      }else if(timer.getElapsed() > 2) {
-                         hardware.drivetrain.left(-0.40);
+                         hardware.drivetrain.left(0.40);
                          status = Status.SCAN2;
                          hardware.resetEncoders();
                          timer.reset();
@@ -124,18 +112,17 @@ public class SkyStoneGrabBlue extends LinearOpMode {
                      hardware.drivetrain.setPowers(0, 0, 0);
 
                      if (hardware.vuforiaPhone.getSkystoneTranslation() != null) {
-                         double skystoneX = hardware.vuforiaPhone.getSkystoneTranslation().get(1) + 0;
+                         double skystoneX = hardware.vuforiaPhone.getSkystoneTranslation().get(1);
                          hardware.drivetrain.right(0.004 * skystoneX + Math.copySign(0.15, skystoneX));
                          if (6 > Math.abs(skystoneX)) {
                              hardware.drivetrain.setPowers(0,0,0);
                              hardware.resetEncoders();
                              timer.reset();
-                             fordist = 62;
-                             turnangle = 42;
+                             fordist = 56;
                              status = Status.FORWARD2GRAB;
                          }
                      }else if(timer.getElapsed() > 2) {
-                         hardware.drivetrain.left(-0.40);
+                         hardware.drivetrain.left(0.40);
                          status = Status.SCAN3;
                          hardware.resetEncoders();
                          timer.reset();
@@ -149,15 +136,13 @@ public class SkyStoneGrabBlue extends LinearOpMode {
                      hardware.drivetrain.setPowers(0, 0, 0);
 
                      if (hardware.vuforiaPhone.getSkystoneTranslation() != null) {
-                         double skystoneX = hardware.vuforiaPhone.getSkystoneTranslation().get(1) + 0;
+                         double skystoneX = hardware.vuforiaPhone.getSkystoneTranslation().get(1);
                          hardware.drivetrain.right(0.004 * skystoneX + Math.copySign(0.15, skystoneX));
                          if (6 > Math.abs(skystoneX)) {
                              hardware.drivetrain.setPowers(0,0,0);
                              hardware.resetEncoders();
                              timer.reset();
-                             fordist = 70;
-                             turnangle = 35;
-
+                             fordist = 62;
                              status = Status.FORWARD2GRAB;
                          }
                      }else if(timer.getElapsed() > 2) {
@@ -173,7 +158,7 @@ public class SkyStoneGrabBlue extends LinearOpMode {
              }
 
             else if(status == Status.FORWARD2GRAB) {
-                if (14 > Calculate.average(hardware.getLeftDrivePos(), hardware.getRightDrivePos())) {
+                if (15 > Calculate.average(hardware.getLeftDrivePos(), hardware.getRightDrivePos())) {
                     hardware.drivetrain.forward(0.35);
                 } else {
                     hardware.drivetrain.setPowers(0,0,0);
@@ -215,8 +200,8 @@ public class SkyStoneGrabBlue extends LinearOpMode {
             }
 
             else if(status == Status.TURN2FOUNDATION1){
-                if(turnangle > hardware.imu.getHeading()){
-                    hardware.drivetrain.setPowers(-0.5, 0.5, 0);
+                if(-75 < hardware.imu.getHeading()){
+                    hardware.drivetrain.setPowers(0.5, -0.5, 0);
                 }else{
                     hardware.drivetrain.setPowers(0,0,0);
                     status = Status.FORWARD2FOUNDATION1;
@@ -233,107 +218,26 @@ public class SkyStoneGrabBlue extends LinearOpMode {
                         hardware.drivetrain.forward(0.7);
                     } else {
                         hardware.drivetrain.setPowers(0, 0, 0);
-                        status = Status.TURN2FOUNDATION2;
+                        status = Status.BACK2;
                         timer.reset();
+                        hardware.dropStone();
                         hardware.imu.resetHeading();
                     }
                 }
             }
 
-             else if(status == Status.TURN2FOUNDATION2){
-                 if(-50 < hardware.imu.getHeading()){
-                     hardware.drivetrain.setPowers(0.5, -0.5, 0);
-                 }else{
-                     hardware.drivetrain.setPowers(0,0,0);
-                     status = Status.FORWARD2FOUNDATION2;
-                     timer.reset();
-                     hardware.resetEncoders();
-                 }
-             }
-
-
-
-             else if(status == Status.FORWARD2FOUNDATION2) {
-                 if (18 > Calculate.average(hardware.getLeftDrivePos(), hardware.getRightDrivePos())) {
-                     hardware.drivetrain.forward(0.7);
+             else if(status == Status.BACK2) {
+                 if (-10 < Calculate.average(hardware.getLeftDrivePos(), hardware.getRightDrivePos())) {
+                     hardware.drivetrain.forward(-0.7);
                  } else {
                      hardware.drivetrain.setPowers(0,0,0);
-                     hardware.resetEncoders();
-                     status = Status.DROPSTONE;
+                     status = Status.TURN2FOUNDATION1;
                      timer.reset();
                      hardware.imu.resetHeading();
                  }
              }
 
-             else if(status == Status.DROPSTONE) {
-                 if (-40 < hardware.getArmAngle()) {
-                     hardware.armApplyAntigrav(-0.3);
-                     hardware.drivetrain.setPowers(0,0,0);
-                 } else {
-                     hardware.dropStone();
-                     hardware.armApplyAntigrav(0);
-                     hardware.resetEncoders();
-                     status = Status.LIFTARM;
-                     timer.reset();
-                 }
-             }
 
-             else if(status == Status.LIFTARM){
-                 if (timer.getElapsed() < 1) {
-                     hardware.elevator.setPower(1);
-                     hardware.armApplyAntigrav(0.3);
-                 } else {
-                     hardware.elevator.setPower(0);
-                     hardware.armApplyAntigrav(0);
-                     hardware.drivetrain.setPowers(0,0,0);
-                     hardware.resetEncoders();
-                     hardware.clampFoundation();
-                     status = Status.BACK2;
-                     timer.reset();
-                 }
-            }
-
-             else if(status == Status.BACK2){
-                 if(timer.getElapsed() > 1){
-                     hardware.drivetrain.setPowers(-1, -1,0);
-                     if(3 < timer.getElapsed()){
-                         hardware.drivetrain.setPowers(0,0,0);
-                         hardware.resetEncoders();
-                         timer.reset();
-                         status = Status.MOVEFOUNDATION;
-                     }
-                 }
-
-             }
-
-             else if(status == Status.MOVEFOUNDATION){
-                hardware.drivetrain.setPowers(-1, 1,-1); //dependent
-                if(1.2 < timer.getElapsed()){
-                    hardware.drivetrain.setPowers(0,0,0);
-                    hardware.resetEncoders();
-                    timer.reset();
-                    status = Status.RELEASEFOUNDATION;
-                }
-            }
-
-             else if(status == Status.RELEASEFOUNDATION){
-                hardware.releaseFoundation();
-                timer.reset();
-                status = Status.PARK;
-                hardware.resetEncoders();
-            }
-
-             else if(status == Status.PARK) {
-                 if (timer.getElapsed() < 2) {
-                     hardware.drivetrain.forward(1);
-                 } else {
-                     hardware.drivetrain.setPowers(0,0,0);
-                     hardware.resetEncoders();
-                     status = Status.DONE;
-                     timer.reset();
-                     hardware.imu.resetHeading();
-                 }
-             }
 
              if(status == Status.DONE){
                  if(-30 < Calculate.average(hardware.getLeftDrivePos(), hardware.getRightDrivePos())){
