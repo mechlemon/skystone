@@ -33,6 +33,8 @@ import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import java.util.Arrays;
+
 
 
 @TeleOp(name="TesterIterative", group ="concept")
@@ -42,8 +44,9 @@ public class TesterIterative extends OpMode {
     Hardware hardware;
 
 
-    String[] titles = new String[] {"left1", "right1", "left2", "right2"}; //names of the tuner values
-    double[] values = new double[] {0.278, 0.7, 1, 0.1}; //default tuner values
+    String[] titles = new String[] {"p", "i", "d", "b", "f", "t", "spinspeed"}; //names of the tuner values
+//    double[] values = new double[] {0.01111111111111, 0.000001, 0.02929, 0.745, 0.1, 0}; //default tuner values
+    double[] values = new double[] {0.0378, 0.000001, -0.05588, 0.745, 0.07, 0, 0.5}; //default tuner values
     Tuner tuner;
 
 
@@ -53,20 +56,44 @@ public class TesterIterative extends OpMode {
         tuner = new Tuner(titles, values, gamepad1, telemetry);
     }
 
+    boolean PIDF;
+    double angle = 0;
+
     public void loop() {
+
+
+        if(gamepad1.x){
+            PIDF = true;
+        }else if(gamepad1.y){
+            PIDF = false;
+        }
+
+        angle += tuner.get("spinspeed") * 10 *gamepad1.right_stick_x;
 
         tuner.tune();
 
-        if(gamepad1.x){
-            hardware.moveServosFoundation(tuner.get("left1"), tuner.get("right1"));
-        }
-        if(gamepad1.y){
-            hardware.moveServosFoundation(tuner.get("left2"),tuner.get("right2"));
+        if(PIDF){
+            hardware.steadyPIDF.setConstants(tuner.get("p"),
+                                             tuner.get("i"),
+                                             tuner.get("d"),
+                                             tuner.get("b"),
+                                             tuner.get("f"),
+                                             tuner.get("t"));
+            hardware.steadyTranslationPIDF(-gamepad1.left_stick_x, -gamepad1.left_stick_y, angle);
+        }else{
+            hardware.drivetrain.clear();
         }
 
 
 
         hardware.drivetrain.execute();
+        telemetry.addData("heading", hardware.imu.getHeading());
+        telemetry.addData("angle", angle);
+        telemetry.addData("PIDF", PIDF);
+        telemetry.addData("P", hardware.steadyPIDF.getPID()[0]);
+        telemetry.addData("I", hardware.steadyPIDF.getPID()[1]);
+        telemetry.addData("D", hardware.steadyPIDF.getPID()[2]);
+        telemetry.addData("F", hardware.steadyPIDF.getPID()[3]);
         telemetry.update();
 
     }

@@ -188,19 +188,19 @@ public class Hardware {
         double turnpower = error + Math.copySign(0.1, error);
 
         drivetrain.setstrafePower(magnitudeX);
-        drivetrain.setleftPower(magnitudeY + turnpower);
-        drivetrain.setrightPower(magnitudeY - turnpower);
+        drivetrain.setleftPower(magnitudeY - turnpower);
+        drivetrain.setrightPower(magnitudeY + turnpower);
     }
 
-    Calculate.PIDF steadyPIDF = new Calculate.PIDF((1/90.0), 0.001, 0.01, 0.1, 0);
+    Calculate.PIDF steadyPIDF = new Calculate.PIDF((1/90.0), 0.00, 0.0, 0.8, 0, 0);
 
     public double steadyTranslationPIDF(double magnitudeX, double magnitudeY){
-        double error = -imu.getHeading();
+        double error = imu.getHeading();
         double turnpower = steadyPIDF.loop(error,0);
 
         drivetrain.setstrafePower(magnitudeX);
-        drivetrain.setleftPower(magnitudeY + turnpower);
-        drivetrain.setrightPower(magnitudeY - turnpower);
+        drivetrain.setleftPower(magnitudeY - turnpower);
+        drivetrain.setrightPower(magnitudeY + turnpower);
         return steadyPIDF.error;
     }
 
@@ -213,6 +213,7 @@ public class Hardware {
         drivetrain.setrightPower(magnitudeY + turnpower);
         return steadyPIDF.error;
     }
+
 
 
 

@@ -103,7 +103,7 @@ public class Calculate {
 //CONTROL THEORY
     public static class PIDF {
         //constants
-        double kP, kI, kD, kF = 0;
+        double kP, kI, kD, kB, kF = 0;
         double tolerance;
 
         double currentValue, target, error, lastError;
@@ -113,10 +113,11 @@ public class Calculate {
         Boolean inTolerance = false;
 
 
-        public PIDF(double kP, double kI, double kD, double kF, double tolerance){
+        public PIDF(double kP, double kI, double kD, double kB, double kF, double tolerance){
             this.kP = kP;
             this.kI = kI;
             this.kD = kD;
+            this.kB = kB;
             this.kF = kF;
             this.tolerance = tolerance;
         }
@@ -138,12 +139,18 @@ public class Calculate {
                 inTolerance = false;
             }
 
+            if(Math.signum(lastError) != Math.signum(error)){ //"bounces" back after reaching target, braking
+                System.out.println("reset");
+                I = -kB * I;
+            }
+
             P = kP * error;
             I = I + (kI*error);
             D = kD * (lastError - error);
             F = Math.copySign(kF, error);
 
             power = P + I + D + F;
+            lastError = error;
             return power;
         }
 
@@ -166,12 +173,17 @@ public class Calculate {
             F=0;
         }
 
-        public void setConstants(double kP, double kI, double kD, double kF, double tolerance){
+        public void setConstants(double kP, double kI, double kD, double kB, double kF, double tolerance){
             this.kP = kP;
             this.kI = kI;
             this.kD = kD;
+            this.kB = kB;
             this.kF = kF;
             this.tolerance = tolerance;
+        }
+
+        public double[] getPID(){
+            return new double[] {P, I, D, F};
         }
 }
 
