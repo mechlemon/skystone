@@ -305,10 +305,10 @@ public class VuforiaPhone {
             }
 
             VectorF translation = lastLocation.getTranslation();
-            telemetry.addData("Visible Target", translation);
+//            telemetry.addData("Visible Target", translation);
             return translation;
         }
-        telemetry.addData("Visible Target", "none");
+//        telemetry.addData("Visible Target", "none");
         return null;
 
     }

@@ -122,6 +122,11 @@ public class Hardware {
         grabRight.setPosition(0.4);
     }
 
+    public void funnelling(){
+        grabLeft.setPosition(0.60);
+        grabRight.setPosition(0.5);
+    }
+
     public void openClaw(){
         grabLeft.setPosition(1);
         grabRight.setPosition(0);
@@ -192,7 +197,7 @@ public class Hardware {
         drivetrain.setrightPower(magnitudeY + turnpower);
     }
 
-    Calculate.PIDF steadyPIDF = new Calculate.PIDF((1/90.0), 0.00, 0.0, 0.8, 0, 0);
+    Calculate.PIDF steadyPIDF = new Calculate.PIDF(0.0378, 0.000001, -0.05588, 0.745, 0.07, 5, 1);
 
     public double steadyTranslationPIDF(double magnitudeX, double magnitudeY){
         double error = imu.getHeading();
@@ -201,7 +206,7 @@ public class Hardware {
         drivetrain.setstrafePower(magnitudeX);
         drivetrain.setleftPower(magnitudeY - turnpower);
         drivetrain.setrightPower(magnitudeY + turnpower);
-        return steadyPIDF.error;
+        return steadyPIDF.getError();
     }
 
     public double steadyTranslationPIDF(double magnitudeX, double magnitudeY, double angle){
@@ -211,7 +216,7 @@ public class Hardware {
         drivetrain.setstrafePower(magnitudeX);
         drivetrain.setleftPower(magnitudeY - turnpower);
         drivetrain.setrightPower(magnitudeY + turnpower);
-        return steadyPIDF.error;
+        return steadyPIDF.getError();
     }
 
 

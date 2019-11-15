@@ -44,56 +44,59 @@ public class TesterIterative extends OpMode {
     Hardware hardware;
 
 
-    String[] titles = new String[] {"p", "i", "d", "b", "f", "t", "spinspeed"}; //names of the tuner values
-//    double[] values = new double[] {0.01111111111111, 0.000001, 0.02929, 0.745, 0.1, 0}; //default tuner values
-    double[] values = new double[] {0.0378, 0.000001, -0.05588, 0.745, 0.07, 0, 0.5}; //default tuner values
+    String[] titles = new String[] {"p", "i", "d", "b", "f", "t", "vt"}; //names of the tuner values
+    double[] values = new double[] {0.002, 6.77e-5, -0.0064, 0.229, 0.10, 5, 0.1}; //default tuner values
     Tuner tuner;
 
 
 
     public void init(){
-        hardware = new Hardware(hardwareMap, telemetry, false);
+        hardware = new Hardware(hardwareMap, telemetry, true);
         tuner = new Tuner(titles, values, gamepad1, telemetry);
+        tuner.incrementSpeed = 0.001;
     }
 
-    boolean PIDF;
-    double angle = 0;
+    boolean running = false;
+
+    Calculate.PIDF visionPID = new Calculate.PIDF();
 
     public void loop() {
-
-
         if(gamepad1.x){
-            PIDF = true;
+            running = true;
         }else if(gamepad1.y){
-            PIDF = false;
+            running = false;
         }
-
-        angle += tuner.get("spinspeed") * 10 *gamepad1.right_stick_x;
 
         tuner.tune();
+        visionPID.setConstants(tuner.get("p"),
+                tuner.get("i"),
+                tuner.get("d"),
+                tuner.get("b"),
+                tuner.get("f"),
+                tuner.get("t"),
+                tuner.get("vt"));
 
-        if(PIDF){
-            hardware.steadyPIDF.setConstants(tuner.get("p"),
-                                             tuner.get("i"),
-                                             tuner.get("d"),
-                                             tuner.get("b"),
-                                             tuner.get("f"),
-                                             tuner.get("t"));
-            hardware.steadyTranslationPIDF(-gamepad1.left_stick_x, -gamepad1.left_stick_y, angle);
+        if(running && hardware.vuforiaPhone.getSkystoneTranslation() != null){
+            telemetry.addData("skystone", hardware.vuforiaPhone.getSkystoneTranslation().get(1));
+
+            double power = visionPID.loop(hardware.vuforiaPhone.getSkystoneTranslation().get(1), 0);
+            hardware.steadyTranslationPIDF(power, 0);
+
+            if(visionPID.inTolerance() && visionPID.inVelTolerance()){
+                running = false;
+            }
+
         }else{
-            hardware.drivetrain.clear();
+            hardware.drivetrain.setPowers(0,0,0);
         }
 
-
-
         hardware.drivetrain.execute();
-        telemetry.addData("heading", hardware.imu.getHeading());
-        telemetry.addData("angle", angle);
-        telemetry.addData("PIDF", PIDF);
-        telemetry.addData("P", hardware.steadyPIDF.getPID()[0]);
-        telemetry.addData("I", hardware.steadyPIDF.getPID()[1]);
-        telemetry.addData("D", hardware.steadyPIDF.getPID()[2]);
-        telemetry.addData("F", hardware.steadyPIDF.getPID()[3]);
+        telemetry.addData("running", running);
+        telemetry.addData("P", visionPID.getPID()[0]);
+        telemetry.addData("I", visionPID.getPID()[1]);
+        telemetry.addData("D", visionPID.getPID()[2]);
+        telemetry.addData("F", visionPID.getPID()[3]);
+        telemetry.addData("vel", visionPID.getVel());
         telemetry.update();
 
     }

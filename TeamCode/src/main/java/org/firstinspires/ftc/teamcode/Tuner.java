@@ -11,6 +11,8 @@ public class Tuner{
 
     private int index = 0;
 
+    double incrementSpeed = 0.01;
+
     private String[] titles;
     private double[] values;
 
@@ -43,11 +45,11 @@ public class Tuner{
             }
         }
 
-        if (gamepad.left_trigger > 0.05){
-            values[index] -= gamepad.left_trigger*0.01;
+        if (gamepad.left_trigger > 0.001){
+            values[index] -= gamepad.left_trigger*incrementSpeed;
         }
-        if (gamepad.right_trigger > 0.05){
-            values[index] += gamepad.right_trigger*0.01;
+        if (gamepad.right_trigger > 0.001){
+            values[index] += gamepad.right_trigger*incrementSpeed;
         }
 
         telemetry.addData(titles[index], values[index]);
