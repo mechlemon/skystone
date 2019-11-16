@@ -101,21 +101,130 @@ public class Calculate {
     }
 
 //CONTROL THEORY
-    public static class PIDF {
+        public static class PIDF {
+            //constants
+            double kP, kI, kD, kB, kF;
+            double tolerance;
+            double velTolerance;
+
+            private double currentValue, target, error, lastError, lastTime, vel;
+            private double P, I, D, F, power;
+
+            Boolean initialized = false;
+            Boolean inTolerance = false;
+            Boolean inVelTolerance = false;
+
+
+            public PIDF(double kP, double kI, double kD, double kB, double kF, double tolerance, double velTolerance){
+                this.kP = kP;
+                this.kI = kI;
+                this.kD = kD;
+                this.kB = kB;
+                this.kF = kF;
+                this.tolerance = tolerance;
+                this.velTolerance = velTolerance;
+            }
+
+            public PIDF(){ //empty constructor if you want to set constants later
+            }
+
+            public double loop(double currentValue, double target){
+                this.currentValue = currentValue;
+                this.target = target;
+                if(!initialized){
+                    lastError = this.target;
+                    initialized = true;
+                }
+                error = this.target - this.currentValue;
+
+
+                if (Math.abs(error) < tolerance){
+                    I = 0;
+                    inTolerance = true;
+                }else{
+                    inTolerance = false;
+                }
+
+                vel = (lastError - error) / (System.currentTimeMillis() - lastTime);
+                if (Math.abs(vel) < velTolerance){
+                    inVelTolerance = true;
+                }else{
+                    inVelTolerance = false;
+                }
+                lastTime = System.currentTimeMillis();
+
+
+                if(Math.signum(lastError) != Math.signum(error)){ //"bounces" back after reaching target, braking
+                    I = -kB * I;
+                }
+
+                P = kP * error;
+                I = I + (kI*error);
+                D = kD * (lastError - error);
+                F = Math.copySign(kF, error);
+
+                power = P + I + D + F;
+                lastError = error;
+                return power;
+            }
+
+            public Boolean inTolerance(){
+                return inTolerance;
+            }
+
+            public Boolean inVelTolerance(){
+                return inVelTolerance;
+            }
+
+            public double getPower(){
+                return power;
+            }
+
+            public double getVel(){
+                return vel;
+            }
+
+            public double getError(){
+                return error;
+            }
+
+            public void resetPID(){
+                P=0;
+                I=0;
+                D=0;
+                F=0;
+            }
+
+            public void setConstants(double kP, double kI, double kD, double kB, double kF, double tolerance, double velTolerance){
+                this.kP = kP;
+                this.kI = kI;
+                this.kD = kD;
+                this.kB = kB;
+                this.kF = kF;
+                this.tolerance = tolerance;
+                this.velTolerance = velTolerance;
+            }
+
+            public double[] getPID(){
+                return new double[] {P, I, D, F};
+            }
+        }
+
+    public static class PIDBF {
         //constants
         double kP, kI, kD, kB, kF;
         double tolerance;
         double velTolerance;
 
-        private double currentValue, target, error, lastError, lastTime, vel;
-        private double P, I, D, F, power;
+        double currentValue, target, error, lastError, lastTime, vel, dt;
+        double P, I, D, F, power;
 
         Boolean initialized = false;
         Boolean inTolerance = false;
         Boolean inVelTolerance = false;
 
 
-        public PIDF(double kP, double kI, double kD, double kB, double kF, double tolerance, double velTolerance){
+        public PIDBF(double kP, double kI, double kD, double kB, double kF, double tolerance, double velTolerance){
             this.kP = kP;
             this.kI = kI;
             this.kD = kD;
@@ -125,10 +234,13 @@ public class Calculate {
             this.velTolerance = velTolerance;
         }
 
-        public PIDF(){ //empty constructor if you want to set constants later
+        public PIDBF(){ //empty constructor if you want to set constants later
         }
 
         public double loop(double currentValue, double target){
+            dt = (System.currentTimeMillis() - lastTime) / 1000.0;
+            lastTime = System.currentTimeMillis();
+
             this.currentValue = currentValue;
             this.target = target;
             if(!initialized){
@@ -137,7 +249,6 @@ public class Calculate {
             }
             error = this.target - this.currentValue;
 
-
             if (Math.abs(error) < tolerance){
                 I = 0;
                 inTolerance = true;
@@ -145,13 +256,13 @@ public class Calculate {
                 inTolerance = false;
             }
 
-            vel = (lastError - error) / (System.currentTimeMillis() - lastTime);
+            vel = (error - lastError) / dt;
             if (Math.abs(vel) < velTolerance){
                 inVelTolerance = true;
             }else{
                 inVelTolerance = false;
             }
-            lastTime = System.currentTimeMillis();
+
 
 
             if(Math.signum(lastError) != Math.signum(error)){ //"bounces" back after reaching target, braking
@@ -159,8 +270,8 @@ public class Calculate {
             }
 
             P = kP * error;
-            I = I + (kI*error);
-            D = kD * (lastError - error);
+            I = I + (kI * error * dt);
+            D = kD * (vel);
             F = Math.copySign(kF, error);
 
             power = P + I + D + F;
@@ -208,7 +319,7 @@ public class Calculate {
         public double[] getPID(){
             return new double[] {P, I, D, F};
         }
-}
+    }
 
 // RANDOM MATH
     public static double average(double a, double b){

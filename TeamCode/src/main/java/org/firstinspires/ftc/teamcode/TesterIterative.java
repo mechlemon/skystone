@@ -45,7 +45,8 @@ public class TesterIterative extends OpMode {
 
 
     String[] titles = new String[] {"p", "i", "d", "b", "f", "t", "vt"}; //names of the tuner values
-    double[] values = new double[] {0.002, 6.77e-5, -0.0064, 0.229, 0.10, 5, 0.1}; //default tuner values
+//    double[] values = new double[] {0.002, 6.77e-5, -0.0064, 0.229, 0.10, 5, 0.1}; //default tuner values
+    double[] values = new double[] {0.002, 0, 1e-5, 0.8, 0.10, 5, 0.1}; //default tuner values
     Tuner tuner;
 
 
@@ -58,7 +59,7 @@ public class TesterIterative extends OpMode {
 
     boolean running = false;
 
-    Calculate.PIDF visionPID = new Calculate.PIDF();
+    Calculate.PIDBF visionPID = new Calculate.PIDBF();
 
     public void loop() {
         if(gamepad1.x){
@@ -79,7 +80,7 @@ public class TesterIterative extends OpMode {
         if(running && hardware.vuforiaPhone.getSkystoneTranslation() != null){
             telemetry.addData("skystone", hardware.vuforiaPhone.getSkystoneTranslation().get(1));
 
-            double power = visionPID.loop(hardware.vuforiaPhone.getSkystoneTranslation().get(1), 0);
+            double power = visionPID.loop(hardware.vuforiaPhone.getSkystoneTranslation().get(1), 30);
             hardware.steadyTranslationPIDF(power, 0);
 
             if(visionPID.inTolerance() && visionPID.inVelTolerance()){
@@ -97,6 +98,7 @@ public class TesterIterative extends OpMode {
         telemetry.addData("D", visionPID.getPID()[2]);
         telemetry.addData("F", visionPID.getPID()[3]);
         telemetry.addData("vel", visionPID.getVel());
+        telemetry.addData("dt", visionPID.dt);
         telemetry.update();
 
     }
