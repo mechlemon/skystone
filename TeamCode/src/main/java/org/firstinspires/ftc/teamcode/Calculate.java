@@ -163,7 +163,12 @@ public class Calculate {
                 D = kD * (lastError - error);
                 F = Math.copySign(kF, error);
 
-                power = P + I + D + F;
+                if(Math.abs(P+I+F - D) < 0){
+                    power = 0;
+                }else{
+                    power = P + I - D + F;
+                }
+
                 lastError = error;
                 return power;
             }

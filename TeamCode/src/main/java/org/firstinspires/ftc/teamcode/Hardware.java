@@ -197,7 +197,8 @@ public class Hardware {
         drivetrain.setrightPower(magnitudeY + turnpower);
     }
 
-    Calculate.PIDF steadyPIDF = new Calculate.PIDF(0.0378, 0.000001, -0.05588, 0.745, 0.07, 5, 1);
+//    Calculate.PIDF steadyPIDF = new Calculate.PIDF(0.0378, 0.000001, -0.08, 0.745, 0.05, 5, 1);
+    Calculate.PIDF steadyPIDF = new Calculate.PIDF(0.0378, 0.000001, 0.12, 0.745, 0.05, 5, 1);
 
     public double steadyTranslationPIDF(double magnitudeX, double magnitudeY){
         double error = imu.getHeading();

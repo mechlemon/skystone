@@ -35,6 +35,8 @@ public class VuforiaPhone {
     private static final VuforiaLocalizer.CameraDirection CAMERA_CHOICE = BACK;
     private static final boolean PHONE_IS_PORTRAIT = false  ;
 
+    VuforiaTrackables targetsSkyStone;
+
     /*
      * IMPORTANT: You need to obtain your own license key to use Vuforia. The string below with which
      * 'parameters.vuforiaLicenseKey' is initialized is for illustration only, and will not function.
@@ -83,8 +85,7 @@ public class VuforiaPhone {
 
         this.telemetry = telemetry;
 
-        /*
-         * Configure Vuforia by creating a Parameter object, and passing it to the Vuforia engine.
+        /* object, and passing it to the Vuforia engine.
          * We can pass Vuforia the handle to a camera preview resource (on the RC phone);
          * If no camera monitor is desired, use the parameter-less constructor instead (commented out below).
          */
@@ -101,7 +102,7 @@ public class VuforiaPhone {
 
         // Load the data sets for the trackable objects. These particular data
         // sets are stored in the 'assets' part of our application.
-        VuforiaTrackables targetsSkyStone = this.vuforia.loadTrackablesFromAsset("Skystone");
+        targetsSkyStone = this.vuforia.loadTrackablesFromAsset("Skystone");
 
         VuforiaTrackable stoneTarget = targetsSkyStone.get(0);
         stoneTarget.setName("Stone Target");
@@ -251,6 +252,13 @@ public class VuforiaPhone {
 
         targetsSkyStone.activate();
         CameraDevice.getInstance().setFlashTorchMode(true);
+    }
+
+    public void disable(){
+        targetsSkyStone.deactivate();
+        if(vuforia.getCamera() != null){
+            vuforia.getCamera().close();
+        }
     }
 
 

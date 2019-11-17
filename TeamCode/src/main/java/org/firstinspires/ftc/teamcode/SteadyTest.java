@@ -29,38 +29,32 @@
 
 package org.firstinspires.ftc.teamcode;
 
-import com.qualcomm.robotcore.eventloop.opmode.Disabled;
-import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
-import java.util.Arrays;
 
 
+@TeleOp(name="SteadyTest", group ="concept")
 
-@TeleOp(name="TesterIterative", group ="concept")
-
-public class TesterIterative extends OpMode {
+public class SteadyTest extends OpMode {
 
     Hardware hardware;
 
+    long lasttime;
 
-    String[] titles = new String[] {"p", "i", "d", "b", "f", "t", "vt"}; //names of the tuner values
-//    double[] values = new double[] {0.002, 6.77e-5, -0.0064, 0.229, 0.10, 5, 0.1}; //default tuner values
-    double[] values = new double[] {0.002, 7e-5, 4.5e-4, 0.8, 0.08, 5, 10}; //default tuner values
-    Tuner tuner;
+
+//    String[] titles = new String[] {"p", "i", "d", "b", "f", "t", "vt"}; //names of the tuner values
+////    double[] values = new double[] {0.002, 6.77e-5, -0.0064, 0.229, 0.10, 5, 0.1}; //default tuner values
+//    double[] values = new double[] {0.002, 0, 1e-5, 0.8, 0.10, 5, 0.1}; //default tuner values
+//    Tuner tuner;
 
 
 
     public void init(){
         hardware = new Hardware(hardwareMap, telemetry, true);
-        tuner = new Tuner(titles, values, gamepad1, telemetry);
-        tuner.incrementSpeed = 0.001;
+        lasttime = System.currentTimeMillis();
     }
 
     boolean running = false;
-
-//    Calculate.PIDBF visionPID = new Calculate.PIDBF();
-    Calculate.PIDBF visionPID = new Calculate.PIDBF(0.002, 9e-5, 1e-5, 0.8, 0.10, 10, 10);
 
 
     public void loop() {
@@ -68,41 +62,24 @@ public class TesterIterative extends OpMode {
             running = true;
         }else if(gamepad1.y){
             running = false;
-            visionPID.resetPID();
         }
 
-        tuner.tune();
-//        visionPID.setConstants(tuner.get("p"),
-//                                tuner.get("i"),
-//                                tuner.get("d"),
-//                                tuner.get("b"),
-//                                tuner.get("f"),
-//                                tuner.get("t"),
-//                                tuner.get("vt"));
-
-        if(running && hardware.vuforiaPhone.getSkystoneTranslation() != null){
-            telemetry.addData("skystone", hardware.vuforiaPhone.getSkystoneTranslation().get(1));
-
-            double power = visionPID.loop(hardware.vuforiaPhone.getSkystoneTranslation().get(1), 30);
-
-            if(visionPID.inTolerance() && visionPID.inVelTolerance()){
-                running = false;
-            }else{
-                hardware.steadyTranslationPIDF(power, 0);
-            }
-
+        if(running){
+            hardware.steadyTranslationPIDF(-gamepad1.left_stick_x, -gamepad1.left_stick_y);
         }else{
             hardware.drivetrain.setPowers(0,0,0);
         }
 
+        telemetry.addData("dt", System.currentTimeMillis() - lasttime);
+        lasttime = System.currentTimeMillis();
+
         hardware.drivetrain.execute();
         telemetry.addData("running", running);
-        telemetry.addData("P", visionPID.getPID()[0]);
-        telemetry.addData("I", visionPID.getPID()[1]);
-        telemetry.addData("D", visionPID.getPID()[2]);
-        telemetry.addData("F", visionPID.getPID()[3]);
-        telemetry.addData("vel", visionPID.getVel());
-        telemetry.addData("dt", visionPID.dt);
+        telemetry.addData("P", hardware.steadyPIDF.getPID()[0]);
+        telemetry.addData("I", hardware.steadyPIDF.getPID()[1]);
+        telemetry.addData("D", hardware.steadyPIDF.getPID()[2]);
+        telemetry.addData("F", hardware.steadyPIDF.getPID()[3]);
+        telemetry.addData("vel", hardware.steadyPIDF.getVel());
         telemetry.update();
 
     }
