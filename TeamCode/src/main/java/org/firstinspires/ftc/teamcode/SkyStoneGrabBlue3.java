@@ -33,9 +33,9 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
 
-@Autonomous(name = "SkyStoneGrabRed3", group = "comp")
+@Autonomous(name = "SkyStoneGrabBlue3", group = "comp")
 
-public class SkyStoneGrabRed3 extends LinearOpMode {
+public class SkyStoneGrabBlue3 extends LinearOpMode {
 
     public enum Status {
         FORWARD2SCAN,
@@ -94,8 +94,8 @@ public class SkyStoneGrabRed3 extends LinearOpMode {
                 fordist = 50;
                 if (timer.getElapsed() > 1) {
                     if (hardware.vuforiaPhone.getSkystoneTranslation() != null) {
-                        double skystoneX = hardware.vuforiaPhone.getSkystoneTranslation().get(1) + 10;
-                        hardware.drivetrain.right(0.004 * skystoneX + Math.copySign(0.15, skystoneX));
+                        double skystoneX = -hardware.vuforiaPhone.getSkystoneTranslation().get(1);
+                        hardware.steadyTranslationPIDF(0.004 * skystoneX + Math.copySign(0.15, skystoneX),0);
                         if (4 > Math.abs(skystoneX)) {
                             hardware.drivetrain.setPowers(0, 0, 0);
                             hardware.resetEncoders();
@@ -112,11 +112,11 @@ public class SkyStoneGrabRed3 extends LinearOpMode {
             else if (status == Status.SCAN2) {
                 fordist = 59;
                 if (timer.getElapsed() < 1.2) {
-                    hardware.steadyTranslationPIDF(0.40, 0);
+                    hardware.steadyTranslationPIDF(-0.40, 0);
                 } else {
                     if (hardware.vuforiaPhone.getSkystoneTranslation() != null) {
-                        double skystoneX = hardware.vuforiaPhone.getSkystoneTranslation().get(1);
-                        hardware.drivetrain.right(0.004 * skystoneX + Math.copySign(0.15, skystoneX));
+                        double skystoneX = -hardware.vuforiaPhone.getSkystoneTranslation().get(1);
+                        hardware.steadyTranslationPIDF(0.004 * skystoneX + Math.copySign(0.15, skystoneX),0);
                         if (6 > Math.abs(skystoneX)) {
                             status = Status.FORWARD2GRAB;
                             resetDrive(hardware, timer);
@@ -133,14 +133,14 @@ public class SkyStoneGrabRed3 extends LinearOpMode {
             else if (status == Status.SCAN3) {
                 fordist = 68;
                 if (timer.getElapsed() < 1.2) {
-                    hardware.steadyTranslationPIDF(0.40, 0);
+                    hardware.steadyTranslationPIDF(-0.40, 0);
                 }
                 else if(timer.getElapsed() < 2){
                     hardware.steadyTranslationPIDF(0,0);
                 } else {
                     if (hardware.vuforiaPhone.getSkystoneTranslation() != null) {
-                        double skystoneX = hardware.vuforiaPhone.getSkystoneTranslation().get(1);
-                        hardware.drivetrain.right(0.004 * skystoneX + Math.copySign(0.15, skystoneX));
+                        double skystoneX = -hardware.vuforiaPhone.getSkystoneTranslation().get(1);
+                        hardware.steadyTranslationPIDF(0.004 * skystoneX + Math.copySign(0.15, skystoneX),0);
                         if (6 > Math.abs(skystoneX)) {
                             hardware.drivetrain.setPowers(0, 0, 0);
                             hardware.resetEncoders();
@@ -196,7 +196,7 @@ public class SkyStoneGrabRed3 extends LinearOpMode {
 
             else if (status == Status.TURN2FOUNDATION1) {
                 if (timer.getElapsed() < 1.2) {
-                    hardware.steadyTranslationPIDF(0,0,-90);
+                    hardware.steadyTranslationPIDF(0,0,90);
                 } else {
                     status = Status.FORWARD2FOUNDATION1;
                     hardware.clampFoundation();
@@ -271,7 +271,7 @@ public class SkyStoneGrabRed3 extends LinearOpMode {
             }
 
             else if (status == Status.MOVEFOUNDATION) {
-                hardware.drivetrain.setPowers(1, -1, 1); //dependent
+                hardware.drivetrain.setPowers(-1, 1, -1); //dependent
                 if (1.2 < timer.getElapsed()) {
                     status = Status.RELEASEFOUNDATION;
                     resetDrive(hardware, timer);

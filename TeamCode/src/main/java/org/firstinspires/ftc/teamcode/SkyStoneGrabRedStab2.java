@@ -30,12 +30,15 @@
 package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
 import java.util.Arrays;
 
 
 @Autonomous(name="SkyStoneGrabRedStab2", group ="comp")
+@Disabled
+
 
 public class SkyStoneGrabRedStab2 extends LinearOpMode {
 
