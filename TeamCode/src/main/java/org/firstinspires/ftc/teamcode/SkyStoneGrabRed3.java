@@ -150,7 +150,7 @@ public class SkyStoneGrabRed3 extends LinearOpMode {
                     } else if (timer.getElapsed() > 3) {
                         status = Status.FORWARD2GRAB;
                         resetDrive(hardware, timer);
-                        hardware.vuforiaPhone.disable();
+//                        hardware.vuforiaPhone.disable();
                     }
 
                 }

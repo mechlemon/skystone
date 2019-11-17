@@ -33,9 +33,9 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
 
-@Autonomous(name = "AllBlue", group = "blue")
+@Autonomous(name = "AllBluePID", group = "blue")
 
-public class AllBlue extends LinearOpMode {
+public class AllBluePID extends LinearOpMode {
 
     public enum Status {
         FORWARD2SCAN,
@@ -83,8 +83,8 @@ public class AllBlue extends LinearOpMode {
         while (!isStopRequested()) {
 
             if (status == Status.FORWARD2SCAN) {
-                if (12.7 > Calculate.average(hardware.getLeftDrivePos(), hardware.getRightDrivePos())) {
-                    hardware.drivetrain.forward(0.4);
+                if (13.5 > Calculate.average(hardware.getLeftDrivePos(), hardware.getRightDrivePos())) {
+                    hardware.steadyTranslationPIDF(0,0.4);
                     hardware.dropStone();
                 } else {
                     status = Status.SCAN1;
@@ -244,7 +244,6 @@ public class AllBlue extends LinearOpMode {
                     hardware.drivetrain.setPowers(0, 0, 0);
                 } else {
                     hardware.dropStone();
-                    hardware.clampFoundation();
                     hardware.armApplyAntigrav(0);
                     status = Status.LIFTARM;
                     resetDrive(hardware, timer);
@@ -258,6 +257,7 @@ public class AllBlue extends LinearOpMode {
                 } else {
                     hardware.elevator.setPower(0);
                     hardware.armApplyAntigrav(0);
+                    hardware.clampFoundation();
                     status = Status.BACK2;
                     resetDrive(hardware, timer);
                 }

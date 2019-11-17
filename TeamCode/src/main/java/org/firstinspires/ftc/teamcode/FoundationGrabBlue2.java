@@ -33,9 +33,9 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
 
-@Autonomous(name="FoundationGrabRed", group ="red")
+@Autonomous(name="FoundationGrabBlue2", group ="red")
 
-public class FoundationGrabRed extends LinearOpMode {
+public class FoundationGrabBlue2 extends LinearOpMode {
 
     public enum Status{
         WAIT,
@@ -103,9 +103,9 @@ public class FoundationGrabRed extends LinearOpMode {
 
 
             else if(status == Status.BACK2){
-                if(timer.getElapsed() > 0.5){
+                if(timer.getElapsed() > 1){
                     hardware.drivetrain.setPowers(-1, -1,0);
-                    if(1.1 < timer.getElapsed()){
+                    if(3 < timer.getElapsed()){
                         hardware.drivetrain.setPowers(0,0,0);
                         hardware.resetEncoders();
                         timer.reset();
@@ -116,7 +116,7 @@ public class FoundationGrabRed extends LinearOpMode {
             }
 
             else if(status == Status.MOVEFOUNDATION){
-                hardware.drivetrain.setPowers(1, -1,1); //dependent
+                hardware.drivetrain.setPowers(-1, 1,-1); //dependent
                 if(1.2 < timer.getElapsed()){
                     hardware.drivetrain.setPowers(0,0,0);
                     hardware.resetEncoders();
@@ -133,7 +133,7 @@ public class FoundationGrabRed extends LinearOpMode {
             }
 
             else if(status == Status.PARK) {
-                if (timer.getElapsed() < 1) {
+                if (timer.getElapsed() < 2) {
                     hardware.drivetrain.forward(1);
                 } else {
                     hardware.drivetrain.setPowers(0,0,0);
@@ -145,7 +145,7 @@ public class FoundationGrabRed extends LinearOpMode {
 
             else if (status == Status.STRAFE){
                 if(timer.getElapsed() < 2){
-                    hardware.steadyTranslationPIDF(-0.7,0,-90);
+                    hardware.steadyTranslationPIDF(0.7,0,90);
                 }else{
                     hardware.drivetrain.setPowers(0,0,0);
                     hardware.resetEncoders();

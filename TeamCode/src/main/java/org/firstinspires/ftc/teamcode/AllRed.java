@@ -56,6 +56,7 @@ public class AllRed extends LinearOpMode {
         MOVEFOUNDATION, // joystick both in
         RELEASEFOUNDATION,
         PUSHFOUNDATION,
+        STRAFE,
         PARK,
 
         DONE,
@@ -95,7 +96,7 @@ public class AllRed extends LinearOpMode {
                 if (timer.getElapsed() > 1) {
                     if (hardware.vuforiaPhone.getSkystoneTranslation() != null) {
                         double skystoneX = hardware.vuforiaPhone.getSkystoneTranslation().get(1) + 10;
-                        hardware.drivetrain.right(0.004 * skystoneX + Math.copySign(0.15, skystoneX));
+                        hardware.drivetrain.right(0.004 * skystoneX + Math.copySign(0.1, skystoneX));
                         if (4 > Math.abs(skystoneX)) {
                             hardware.drivetrain.setPowers(0, 0, 0);
                             hardware.resetEncoders();
@@ -111,12 +112,12 @@ public class AllRed extends LinearOpMode {
 
             else if (status == Status.SCAN2) {
                 fordist = 59;
-                if (timer.getElapsed() < 1.2) {
+                if (timer.getElapsed() < 1) {
                     hardware.steadyTranslationPIDF(0.40, 0);
                 } else {
                     if (hardware.vuforiaPhone.getSkystoneTranslation() != null) {
                         double skystoneX = hardware.vuforiaPhone.getSkystoneTranslation().get(1);
-                        hardware.drivetrain.right(0.004 * skystoneX + Math.copySign(0.15, skystoneX));
+                        hardware.drivetrain.right(0.004 * skystoneX + Math.copySign(0.1, skystoneX));
                         if (6 > Math.abs(skystoneX)) {
                             status = Status.FORWARD2GRAB;
                             resetDrive(hardware, timer);
@@ -132,7 +133,7 @@ public class AllRed extends LinearOpMode {
 
             else if (status == Status.SCAN3) {
                 fordist = 68;
-                if (timer.getElapsed() < 1.2) {
+                if (timer.getElapsed() < 1) {
                     hardware.steadyTranslationPIDF(0.40, 0);
                 }
                 else if(timer.getElapsed() < 2){
@@ -140,7 +141,7 @@ public class AllRed extends LinearOpMode {
                 } else {
                     if (hardware.vuforiaPhone.getSkystoneTranslation() != null) {
                         double skystoneX = hardware.vuforiaPhone.getSkystoneTranslation().get(1);
-                        hardware.drivetrain.right(0.004 * skystoneX + Math.copySign(0.15, skystoneX));
+                        hardware.drivetrain.right(0.004 * skystoneX + Math.copySign(0.1, skystoneX));
                         if (6 > Math.abs(skystoneX)) {
                             hardware.drivetrain.setPowers(0, 0, 0);
                             hardware.resetEncoders();
@@ -150,7 +151,7 @@ public class AllRed extends LinearOpMode {
                     } else if (timer.getElapsed() > 3) {
                         status = Status.FORWARD2GRAB;
                         resetDrive(hardware, timer);
-                        hardware.vuforiaPhone.disable();
+//                        hardware.vuforiaPhone.disable();
                     }
 
                 }
@@ -226,7 +227,7 @@ public class AllRed extends LinearOpMode {
             }
 
             else if (status == Status.FORWARD2FOUNDATION2) {
-                if (18 > Calculate.average(hardware.getLeftDrivePos(), hardware.getRightDrivePos())) {
+                if (13 > Calculate.average(hardware.getLeftDrivePos(), hardware.getRightDrivePos())) {
                     hardware.drivetrain.forward(0.7);
                 } else {
                     status = Status.DROPSTONE;
@@ -240,6 +241,7 @@ public class AllRed extends LinearOpMode {
                     hardware.drivetrain.setPowers(0, 0, 0);
                 } else {
                     hardware.dropStone();
+                    hardware.clampFoundation();
                     hardware.armApplyAntigrav(0);
                     status = Status.LIFTARM;
                     resetDrive(hardware, timer);
@@ -253,15 +255,14 @@ public class AllRed extends LinearOpMode {
                 } else {
                     hardware.elevator.setPower(0);
                     hardware.armApplyAntigrav(0);
-                    hardware.clampFoundation();
                     status = Status.BACK2;
                     resetDrive(hardware, timer);
                 }
             }
 
             else if (status == Status.BACK2) {
-                if (timer.getElapsed() > 0.4) {
-                    hardware.drivetrain.setPowers(-1, -1, 0);
+                if (-13 < Calculate.average(hardware.getLeftDrivePos(), hardware.getRightDrivePos())) {
+                    hardware.drivetrain.setPowers(-0.8, -0.8, 0);
                     if (3 < timer.getElapsed()) {
                         status = Status.MOVEFOUNDATION;
                         resetDrive(hardware, timer);
@@ -288,6 +289,15 @@ public class AllRed extends LinearOpMode {
                 if (timer.getElapsed() < 2) {
                     hardware.drivetrain.forward(1);
                 } else {
+                    status = Status.STRAFE;
+                    resetDrive(hardware, timer);
+                }
+            }
+
+            else if (status == Status.STRAFE){
+                if(timer.getElapsed() < 1){
+                    hardware.steadyTranslationPIDF(0.5, 0);
+                }else{
                     status = Status.PARK;
                     resetDrive(hardware, timer);
                 }
