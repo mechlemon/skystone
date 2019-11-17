@@ -33,7 +33,7 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
 
-@Autonomous(name="FoundationGrabBlue", group ="comp")
+@Autonomous(name="FoundationGrabBlue", group ="blue")
 
 public class FoundationGrabBlue extends LinearOpMode {
 

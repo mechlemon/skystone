@@ -33,7 +33,7 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
 
-@Autonomous(name = "SkyStoneGrabRed3", group = "comp")
+@Autonomous(name = "SkyStoneGrabRed3", group = "red")
 
 public class SkyStoneGrabRed3 extends LinearOpMode {
 

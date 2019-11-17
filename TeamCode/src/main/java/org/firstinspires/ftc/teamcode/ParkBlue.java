@@ -35,7 +35,7 @@ import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 
-@Autonomous(name="ParkBlue", group ="comp")
+@Autonomous(name="ParkBlue", group ="blue")
 
 public class ParkBlue extends OpMode {
 

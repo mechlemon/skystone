@@ -33,9 +33,9 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
 
-@Autonomous(name = "SkyStoneGrabBlue3", group = "blue")
+@Autonomous(name = "AllBlue", group = "blue")
 
-public class SkyStoneGrabBlue3 extends LinearOpMode {
+public class AllBlue extends LinearOpMode {
 
     public enum Status {
         FORWARD2SCAN,
