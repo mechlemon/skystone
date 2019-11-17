@@ -94,7 +94,7 @@ public class SkyStoneGrabBlue3 extends LinearOpMode {
                 fordist = 50;
                 if (timer.getElapsed() > 1) {
                     if (hardware.vuforiaPhone.getSkystoneTranslation() != null) {
-                        double skystoneX = -hardware.vuforiaPhone.getSkystoneTranslation().get(1);
+                        double skystoneX = -hardware.vuforiaPhone.getSkystoneTranslation().get(1) - 10;
                         hardware.steadyTranslationPIDF(0.004 * skystoneX + Math.copySign(0.15, skystoneX),0);
                         if (4 > Math.abs(skystoneX)) {
                             hardware.drivetrain.setPowers(0, 0, 0);
@@ -111,11 +111,11 @@ public class SkyStoneGrabBlue3 extends LinearOpMode {
 
             else if (status == Status.SCAN2) {
                 fordist = 59;
-                if (timer.getElapsed() < 1.2) {
+                if (timer.getElapsed() < 1) {
                     hardware.steadyTranslationPIDF(-0.40, 0);
                 } else {
                     if (hardware.vuforiaPhone.getSkystoneTranslation() != null) {
-                        double skystoneX = -hardware.vuforiaPhone.getSkystoneTranslation().get(1);
+                        double skystoneX = -hardware.vuforiaPhone.getSkystoneTranslation().get(1) - 10;
                         hardware.steadyTranslationPIDF(0.004 * skystoneX + Math.copySign(0.15, skystoneX),0);
                         if (6 > Math.abs(skystoneX)) {
                             status = Status.FORWARD2GRAB;
@@ -132,14 +132,14 @@ public class SkyStoneGrabBlue3 extends LinearOpMode {
 
             else if (status == Status.SCAN3) {
                 fordist = 68;
-                if (timer.getElapsed() < 1.2) {
+                if (timer.getElapsed() < 1) {
                     hardware.steadyTranslationPIDF(-0.40, 0);
                 }
                 else if(timer.getElapsed() < 2){
                     hardware.steadyTranslationPIDF(0,0);
                 } else {
                     if (hardware.vuforiaPhone.getSkystoneTranslation() != null) {
-                        double skystoneX = -hardware.vuforiaPhone.getSkystoneTranslation().get(1);
+                        double skystoneX = -hardware.vuforiaPhone.getSkystoneTranslation().get(1) - 10;
                         hardware.steadyTranslationPIDF(0.004 * skystoneX + Math.copySign(0.15, skystoneX),0);
                         if (6 > Math.abs(skystoneX)) {
                             hardware.drivetrain.setPowers(0, 0, 0);
