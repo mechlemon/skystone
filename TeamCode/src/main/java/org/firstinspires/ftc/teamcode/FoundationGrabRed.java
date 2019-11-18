@@ -73,7 +73,7 @@ public class FoundationGrabRed extends LinearOpMode {
 
         while(!isStopRequested()){
 
-            if((timer.getElapsed() > 10) && (status == Status.WAIT)){
+            if((timer.getElapsed() > 0) && (status == Status.WAIT)){
                 status = Status.LIFTARM;
                 timer.reset();
             }

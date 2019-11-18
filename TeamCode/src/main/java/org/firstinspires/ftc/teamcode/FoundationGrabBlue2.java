@@ -73,7 +73,7 @@ public class FoundationGrabBlue2 extends LinearOpMode {
 
         while(!isStopRequested()){
 
-            if((timer.getElapsed() > 10) && (status == Status.WAIT)){
+            if((timer.getElapsed() > 0) && (status == Status.WAIT)){
                 status = Status.LIFTARM;
                 timer.reset();
             }
@@ -155,7 +155,7 @@ public class FoundationGrabBlue2 extends LinearOpMode {
             }
 
             if(status == Status.DONE){
-                if(-30 < Calculate.average(hardware.getLeftDrivePos(), hardware.getRightDrivePos())){
+                if(-33 < Calculate.average(hardware.getLeftDrivePos(), hardware.getRightDrivePos())){
                     hardware.drivetrain.back(1);
                     hardware.elevator.setPower(-0.7);
                     hardware.arm.setPower(-0.1);
